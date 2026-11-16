@@ -1,0 +1,5 @@
+raw/
+logs/
+game/.godot/
+game/build/
+*.tmp
