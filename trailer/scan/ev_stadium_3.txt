@@ -1,0 +1,21 @@
+BAR kind=stadium seed=3 tick=2467
+SAVE kind=stadium seed=3 tick=6030 gk=11 catch=true shot_tick=5895 shot_s=35.4 shooter=9 ball_h=1.05
+SLIDE kind=stadium seed=3 tick=7639 id=18
+SAVE kind=stadium seed=3 tick=8635 gk=0 catch=false shot_tick=8585 shot_s=35.4 shooter=19 ball_h=1.52
+POST kind=stadium seed=3 tick=8664
+SLIDE kind=stadium seed=3 tick=9833 id=17
+SAVE kind=stadium seed=3 tick=15383 gk=11 catch=false shot_tick=15342 shot_s=35.4 shooter=8 ball_h=2.48
+SLIDE kind=stadium seed=3 tick=21592 id=7
+SLIDE kind=stadium seed=3 tick=28060 id=1
+SLIDE kind=stadium seed=3 tick=33166 id=17
+SLIDE kind=stadium seed=3 tick=34123 id=4
+SAVE kind=stadium seed=3 tick=36016 gk=11 catch=false shot_tick=35983 shot_s=35.4 shooter=9 ball_h=2.11
+SLIDE kind=stadium seed=4 tick=4894 id=21
+SLIDE kind=stadium seed=4 tick=5967 id=4
+SLIDE kind=stadium seed=4 tick=16315 id=18
+SAVE kind=stadium seed=4 tick=18286 gk=11 catch=false shot_tick=18233 shot_s=35.6 shooter=10 ball_h=1.64
+SAVE kind=stadium seed=4 tick=21591 gk=11 catch=false shot_tick=21570 shot_s=32.8 shooter=8 ball_h=1.58
+SLIDE kind=stadium seed=4 tick=22144 id=17
+SLIDE kind=stadium seed=4 tick=31807 id=20
+SLIDE kind=stadium seed=4 tick=33483 id=8
+SAVE kind=stadium seed=4 tick=35228 gk=0 catch=false shot_tick=35194 shot_s=37.2 shooter=17 ball_h=0.18

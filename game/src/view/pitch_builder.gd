@@ -45,17 +45,19 @@ static func _ground(pitch: Pitch, root: Node3D) -> void:
 	sm.set_shader_parameter("circle_r", pitch.circle_radius)
 	sm.set_shader_parameter("pen_spot", pitch.penalty_spot)
 	sm.set_shader_parameter("arc_r", pitch.circle_radius if pitch.walls else 9.15)
+	sm.set_shader_parameter("cross_mow", not pitch.walls and pitch.surface == Pitch.Surface.GRASS)
 	if pitch.surface == Pitch.Surface.TURF:
 		sm.set_shader_parameter("turf", true)
-		sm.set_shader_parameter("grass_a", Color(0.13, 0.42, 0.16))
-		sm.set_shader_parameter("grass_b", Color(0.12, 0.38, 0.15))
+		sm.set_shader_parameter("grass_a", Color(0.21, 0.37, 0.15))
+		sm.set_shader_parameter("grass_b", Color(0.19, 0.34, 0.14))
 		sm.set_shader_parameter("stripes", 10.0)
-	var tex_dir := "res://assets/tex/grass/"
+	var tex_dir := "res://assets/tex/grass/" if pitch.surface == Pitch.Surface.GRASS else "res://assets/tex/turf/"
 	if ResourceLoader.exists(tex_dir + "albedo.jpg"):
 		sm.set_shader_parameter("detail_tex", load(tex_dir + "albedo.jpg"))
 		sm.set_shader_parameter("detail_nrm", load(tex_dir + "normal.jpg"))
-		sm.set_shader_parameter("macro_tex", load(tex_dir + "albedo.jpg"))
+		sm.set_shader_parameter("macro_tex", load("res://assets/tex/grass/macro.jpg"))
 		sm.set_shader_parameter("has_detail", true)
+		sm.set_shader_parameter("detail_scale", 0.45 if pitch.surface == Pitch.Surface.GRASS else 0.9)
 	mi.material_override = sm
 	root.add_child(mi)
 
@@ -148,14 +150,14 @@ static func _arena_walls(pitch: Pitch, root: Node3D) -> void:
 	var c := pitch.wall_chamfer
 	var board_h := 1.0
 	var glass_h := 3.2
-	var board := _mat(Color(0.06, 0.08, 0.14), 0.45, 0.1)
+	var board := VenueBuilder.pbr("metal_painted", 3.0, Color(0.1, 0.11, 0.14), 0.3)
 	var glass := StandardMaterial3D.new()
 	glass.albedo_color = Color(0.75, 0.85, 0.95, 0.12)
 	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	glass.roughness = 0.05
 	glass.metallic = 0.3
 	glass.cull_mode = BaseMaterial3D.CULL_DISABLED
-	var rail := _mat(Color(0.7, 0.72, 0.75), 0.3, 0.9)
+	var rail := VenueBuilder.pbr("metal_brushed", 4.0, Color(0.75, 0.77, 0.8), 0.95)
 	var gw2 := pitch.goal_width * 0.5 + 0.12
 	# wall segments as (a, b) in XZ, skipping the goal openings
 	var segs := []
@@ -196,6 +198,18 @@ static func _arena_walls(pitch: Pitch, root: Node3D) -> void:
 		rm.material_override = rail
 		rm.transform = Transform3D(basis, Vector3(mid.x, glass_h, mid.y))
 		w.add_child(rm)
+		# steel posts holding the glass + fence
+		var n_posts := maxi(int(length / 3.6), 1)
+		for k in n_posts + 1:
+			var pt := a.lerp(b, float(k) / float(n_posts))
+			var post := MeshInstance3D.new()
+			var pbm := BoxMesh.new()
+			pbm.size = Vector3(0.09, glass_h + 3.5, 0.09)
+			post.mesh = pbm
+			post.material_override = rail
+			post.position = Vector3(pt.x, (glass_h + 3.5) * 0.5, pt.y)
+			post.rotation.y = -ang
+			w.add_child(post)
 		# fence above the glass
 		var fsize := Vector2(length, 3.5)
 		var fm := _net_mat(fsize, 0.09)

@@ -11,7 +11,10 @@ static func toggle(view: MatchView, on: bool) -> void:
 		_layer = null
 	if not on:
 		view.get_tree().paused = false
+		if not Game.is_phone() and view.human:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		return
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_layer = CanvasLayer.new()
 	_layer.layer = 50
 	_layer.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -27,7 +30,7 @@ static func toggle(view: MatchView, on: bool) -> void:
 	box.add_theme_constant_override("separation", 18)
 	_layer.add_child(box)
 	var title := Label.new()
-	title.text = "PAUZA"
+	title.text = TranslationServer.translate("PAUSED")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_override("font", load("res://assets/fonts/Oswald.ttf"))
 	title.add_theme_font_size_override("font_size", 72)
@@ -36,14 +39,23 @@ static func toggle(view: MatchView, on: bool) -> void:
 		var b := UiKit.big_button(txt)
 		b.pressed.connect(cb)
 		box.add_child(b)
-	mk.call("DAVOM ETISH", func() -> void: view._toggle_pause())
-	mk.call("KAMERA: " + ("ORQADAN" if view.cam.mode == CameraRig.Mode.PRO else "TELEVIZOR"), func() -> void:
-		view.cam.mode = CameraRig.Mode.TV if view.cam.mode == CameraRig.Mode.PRO else CameraRig.Mode.PRO
+	mk.call(TranslationServer.translate("RESUME"), func() -> void: view._toggle_pause())
+	if not Game.is_phone():
+		var help := Label.new()
+		help.text = TranslationServer.translate("PC_CONTROLS")
+		help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		help.custom_minimum_size = Vector2(440, 0)
+		help.add_theme_font_size_override("font_size", 16)
+		help.modulate = Color(1, 1, 1, 0.7)
+		box.add_child(help)
+	mk.call(TranslationServer.translate("CAMERA") + ": " + TranslationServer.translate("CAM_TV" if view.cam.mode == CameraRig.Mode.TV else "CAM_PRO"), func() -> void:
+		view.cam.mode = CameraRig.Mode.TV if view.cam.mode != CameraRig.Mode.TV else CameraRig.Mode.SHOULDER
 		Game.settings["camera"] = 1 if view.cam.mode == CameraRig.Mode.TV else 0
 		Game.save_game()
 		view.cam.snap()
 		view._toggle_pause())
-	mk.call("CHIQISH", func() -> void:
+	mk.call(TranslationServer.translate("QUIT_MATCH"), func() -> void:
 		view.get_tree().paused = false
 		Sfx.match_end()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		Game.goto("res://scenes/menu.tscn"))

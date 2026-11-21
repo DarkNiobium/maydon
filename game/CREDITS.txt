@@ -1,0 +1,59 @@
+[b]MAYDON[/b]
+Game design, code, art direction: MAYDON team
+
+[b]Fonts[/b]
+Oswald — SIL Open Font License 1.1 (The Oswald Project Authors)
+Inter — SIL Open Font License 1.1 (The Inter Project Authors)
+
+[b]Characters[/b]
+Bodies, skins, hair: MakeHuman / MPFB2 assets — CC0
+
+[b]Motion capture[/b]
+Carnegie Mellon University Graphics Lab Motion Capture Database (mocap.cs.cmu.edu), funded by NSF EIA-0196217
+ACCAD Open Motion Project, The Ohio State University — CC BY 3.0
+Cologne Motion Capture Database, TH Köln — CC BY 4.0
+100STYLE dataset, Ian Mason et al. — CC BY 4.0
+Universal Animation Library, Quaternius — CC0
+
+[b]Textures[/b]
+Poly Haven and ambientCG — CC0
+
+[b]Sound and music[/b]
+"45-Kicking Soccer Ball Shoe.wav" by Leoctiurs (https://freesound.org/people/Leoctiurs/sounds/428260/) - licensed under CC BY 4.0
+"Soccer Kicking a football" by dersuperanton (https://freesound.org/people/dersuperanton/sounds/433722/) - licensed under CC BY 4.0
+"soccer ball hit ground 02.wav" by volivieri (https://freesound.org/people/volivieri/sounds/37155/) - licensed under CC BY 4.0
+"Dropping football (SoundAction 233)" by alexarje (https://freesound.org/people/alexarje/sounds/863211/) - licensed under CC BY 4.0
+"07 Football - Goalpost.wav" by 14GPanskaValaChristoffer (https://freesound.org/people/14GPanskaValaChristoffer/sounds/420164/) - licensed under CC BY 4.0
+"Ball rolls and hits net 5.WAV" by luminadii (https://freesound.org/people/luminadii/sounds/343446/) - licensed under CC BY 4.0
+"SPRTCourt-Samsung Galaxy Smartphone, CU_Basketball, Swish Into Net_Nicholas Judy_TDC" by designerschoice (https://freesound.org/people/designerschoice/sounds/847042/) - licensed under CC BY 4.0
+"Dodgeball_Throw_Hit1.wav" by burnsie289 (https://freesound.org/people/burnsie289/sounds/152416/) - licensed under CC BY 3.0
+" football keeper ball" by Eelke (https://freesound.org/people/Eelke/sounds/266659/) - licensed under CC BY 4.0
+"WHSTMech-Blue Snowball Microphone, CU_Fox 40 Whistle, Blowing_Nicholas Judy_TDC" by designerschoice (https://freesound.org/people/designerschoice/sounds/811508/) - licensed under CC BY 4.0
+"referee_whistle_01.wav" by joedeshon (https://freesound.org/people/joedeshon/sounds/78508/) - licensed under CC BY 4.0
+"referee-whistle.wav" by Pablo-F (https://freesound.org/people/Pablo-F/sounds/90743/) - licensed under CC BY 3.0
+"File:WWS FootballAustriavs.Sweden.ogg" by Work With Sounds / Torsten Nilsson (https://commons.wikimedia.org/wiki/File:WWS_FootballAustriavs.Sweden.ogg) - licensed under CC BY 4.0
+"soccer crowd.flac" by tim.kahn (https://freesound.org/people/tim.kahn/sounds/106568/) - licensed under CC BY 4.0
+"Football-crowd-GOAL.wav" by paulw2k (https://freesound.org/people/paulw2k/sounds/196461/) - licensed under CC BY 4.0
+"Football Crowd - Near miss ooh 2 - Southampton Vs Hull at Saint Mary's Stadium.wav" by Quistard (https://freesound.org/people/Quistard/sounds/237684/) - licensed under CC BY 3.0
+"Football-crowd-near-miss-from-freekick.wav" by paulw2k (https://freesound.org/people/paulw2k/sounds/196464/) - licensed under CC BY 4.0
+"Disappointed_Crowd" by unchaz (https://freesound.org/people/unchaz/sounds/150956/) - licensed under CC BY 4.0
+"Crowd - Applause - Clapping.wav" by GregorQuendel (https://freesound.org/people/GregorQuendel/sounds/611423/) - licensed under CC BY 4.0
+"Football stadium fans clap after a near miss" by avakas (https://freesound.org/people/avakas/sounds/263678/) - licensed under CC BY 4.0
+"Football-match_Cheering_Large-crowd_Ambience .stereo.wav" by Dan_AudioFile (https://freesound.org/people/Dan_AudioFile/sounds/654085/) - licensed under CC BY 4.0
+"Football-match_Chanting-crowd_Ambience .stereo.wav" by Dan_AudioFile (https://freesound.org/people/Dan_AudioFile/sounds/654084/) - licensed under CC BY 4.0
+"Football stadium fans sing after a near miss" by avakas (https://freesound.org/people/avakas/sounds/263679/) - licensed under CC BY 4.0
+"Football-crowd-chanting-cheering-goal-mouth-action-from-freekick-then-cornerkick.wav" by paulw2k (https://freesound.org/people/paulw2k/sounds/196284/) - licensed under CC BY 4.0
+"Football supporters in stadium.wav" by devy32 (https://freesound.org/people/devy32/sounds/606958/) - licensed under CC BY 4.0
+"Football stadium fans are not happy with the referee" by avakas (https://freesound.org/people/avakas/sounds/263680/) - licensed under CC BY 4.0
+"Football-crowd-Cheer+Jeers.wav" by paulw2k (https://freesound.org/people/paulw2k/sounds/196463/) - licensed under CC BY 4.0
+"NPC/Player - Effort Grunts (Male)" by SoundBiterSFX (https://freesound.org/people/SoundBiterSFX/sounds/731509/) - licensed under CC BY 4.0
+"NPC/Player - Out of Breath (Male)" by SoundBiterSFX (https://freesound.org/people/SoundBiterSFX/sounds/731510/) - licensed under CC BY 4.0
+"Falling_Grass_TwoStep.wav" by DrMrSir (https://freesound.org/people/DrMrSir/sounds/529551/) - licensed under CC BY 4.0
+"Exit the Premises" Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By Attribution 3.0 - https://commons.wikimedia.org/wiki/File:Exit_the_Premises_(ISRC_USUAN1500029).mp3
+"Basic Implosion" Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By Attribution 3.0 - https://commons.wikimedia.org/wiki/File:Basic_Implosion_(ISRC_USUAN1600032).mp3
+"MTA" Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By Attribution 3.0 - https://commons.wikimedia.org/wiki/File:MTA_(ISRC_USUAN1100631).mp3
+"Laser Groove" Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By Attribution 3.0 - https://commons.wikimedia.org/wiki/File:Laser_Groove_(ISRC_USUAN1700017).mp3
+"Go Cart - Loop Mix" Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By Attribution 3.0 - https://commons.wikimedia.org/wiki/File:Go_Cart_-_Loop_Mix_(ISRC_USUAN1300008).mp3
+"Cut and Run" Kevin MacLeod (incompetech.com) - Licensed under Creative Commons: By Attribution 3.0 - https://commons.wikimedia.org/wiki/File:Cut_and_Run_(ISRC_USUAN1100851).mp3
+
+All other sounds: CC0 / public domain (Freesound, OpenGameArt, Kenney).

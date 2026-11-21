@@ -9,7 +9,11 @@ var inp := InputState.new()
 var aim_assist := 1.0
 var gk_assist := true
 var called_t := -10.0
+var called_through := false
+var aim_origin := Vector3.ZERO      # camera aim ray (set by the view when inp.aim_mode)
+var aim_dir := Vector3.FORWARD
 var last_ctx := ""
+var _emote_t := -99.0
 
 
 func _init(sim: MatchSim, player_id: int) -> void:
@@ -54,6 +58,9 @@ func _has_ball(p: Footballer) -> bool:
 
 func update(now: float, cam_fwd: Vector3, cam_right: Vector3) -> void:
 	var p := player()
+	if inp.emote >= 0 and inp.emote < Emotes.LIST.size() and now - _emote_t > Emotes.COOLDOWN:
+		_emote_t = now
+		m.emit_later({"t": "emote", "id": p.id, "e": inp.emote})
 	var c := p.cmd
 	c.act = Cmd.Act.NONE
 	c.look = Vector3.INF
@@ -69,6 +76,30 @@ func update(now: float, cam_fwd: Vector3, cam_right: Vector3) -> void:
 	last_ctx = ctx
 	var dir := mv.normalized() if mv.length() > 0.2 else p.face
 	var B := InputState.B
+	var aim := inp.aim_mode
+	if aim:
+		dir = _aim_flat()
+	# explicit PC actions work in any context
+	if inp.pressed[B.CALL]:
+		m.ai[p.team].request_pass(p.id, false)
+		if now - called_t > 1.0:
+			Sfx.call_for_ball(p.pos + Vector3(0, 1.6, 0))
+		called_t = now
+		called_through = false
+	elif inp.pressed[B.RUNREQ]:
+		m.ai[p.team].request_pass(p.id, true)
+		if now - called_t > 1.0:
+			Sfx.call_for_ball(p.pos + Vector3(0, 1.6, 0))
+		called_t = now
+		called_through = true
+	if ctx != "attack" and ctx != "setpiece" and ctx != "gk_hold" and ctx != "throw":
+		if inp.pressed[B.TACKLE]:
+			c.act = Cmd.Act.TACKLE
+			return
+		if inp.pressed[B.SLIDE]:
+			c.act = Cmd.Act.SLIDE
+			c.target = m.ball.pos
+			return
 
 	match ctx:
 		"attack", "setpiece":
@@ -80,7 +111,11 @@ func update(now: float, cam_fwd: Vector3, cam_right: Vector3) -> void:
 			elif inp.released[B.C]:
 				_pass(p, dir, Cmd.Act.THROUGH)
 			elif inp.released[B.B]:
-				_shoot(p, mv, clampf(inp.hold_time[B.B] / 0.85, 0.15, 1.0))
+				var pw := clampf(inp.hold_time[B.B] / 0.85, 0.15, 1.0)
+				if aim:
+					_shoot_aim(p, pw)
+				else:
+					_shoot(p, mv, pw)
 			elif inp.pressed[B.D] and ctx == "attack":
 				_skill(p, mv)
 		"throw":
@@ -104,22 +139,33 @@ func update(now: float, cam_fwd: Vector3, cam_right: Vector3) -> void:
 			if inp.pressed[B.A]:
 				m.ai[p.team].request_pass(p.id, false)
 				called_t = now
+				called_through = false
 			elif inp.pressed[B.C]:
 				m.ai[p.team].request_pass(p.id, true)
 				called_t = now
+				called_through = true
 			if inp.released[B.B]:
 				# first-time shot when the ball arrives
-				_shoot(p, mv, clampf(inp.hold_time[B.B] / 0.85, 0.3, 1.0))
+				var pw2 := clampf(inp.hold_time[B.B] / 0.85, 0.3, 1.0)
+				if aim:
+					_shoot_aim(p, pw2)
+				else:
+					_shoot(p, mv, pw2)
 		"defend":
 			if p.is_gk():
+				last_ctx = "gk_defend"
 				_gk_defend(p, mv)
 				return
-			if inp.pressed[B.A]:
+			if aim:
+				# PC: LMB tackle, RMB (hold) contain; Ctrl slides (explicit)
+				if inp.pressed[B.B]:
+					c.act = Cmd.Act.TACKLE
+			elif inp.pressed[B.A]:
 				c.act = Cmd.Act.TACKLE
 			elif inp.pressed[B.B]:
 				c.act = Cmd.Act.SLIDE
 				c.target = m.ball.pos
-			if inp.held[B.C]:
+			if inp.held[B.C] or (aim and inp.held[B.A]):
 				var car := m.carrier()
 				var ref := car.pos if car else m.ball.pos
 				c.jockey = true
@@ -138,13 +184,19 @@ func update(now: float, cam_fwd: Vector3, cam_right: Vector3) -> void:
 func _gk_defend(p: Footballer, mv: Vector3) -> void:
 	var c := p.cmd
 	var B := InputState.B
-	if gk_assist and mv.length() < 0.2 and not inp.pressed[B.B] and not inp.held[B.A]:
+	if gk_assist and mv.length() < 0.2 and not inp.pressed[B.B] and not inp.held[B.A] and not inp.aim_mode:
 		m.ai[p.team]._gk(p)
 		return
 	if inp.pressed[B.B]:
 		var dir := mv.normalized() if mv.length() > 0.2 else p.face.cross(Vector3.UP)
 		c.act = Cmd.Act.GK_DIVE
 		c.target = p.pos + dir * 2.6 + Vector3(0, 0.8 + inp.stick.y * 0.8, 0)
+		if inp.aim_mode and mv.length() < 0.2:
+			# dive to where the camera points along the goal mouth
+			var gx := m.pitch.goal_x(-m.side_of(p.team))
+			var hit := _ray_plane_x(gx + m.side_of(p.team) * 0.8)
+			if hit != Vector3.INF:
+				c.target = Vector3(hit.x, clampf(hit.y, 0.2, 2.4), clampf(hit.z, -m.pitch.goal_width * 0.6, m.pitch.goal_width * 0.6))
 	if inp.held[B.A]:
 		# rush out at the ball
 		var to := m.ball.pos - p.pos
@@ -153,7 +205,7 @@ func _gk_defend(p: Footballer, mv: Vector3) -> void:
 		c.sprint = true
 
 
-func pick_receiver(p: Footballer, dir: Vector3, through: bool) -> Footballer:
+func pick_receiver(p: Footballer, dir: Vector3, through: bool, cone := 0.85) -> Footballer:
 	var best: Footballer = null
 	var best_s := -99.0
 	for q in m.team_players(p.team):
@@ -165,7 +217,7 @@ func pick_receiver(p: Footballer, dir: Vector3, through: bool) -> Footballer:
 		if d < 2.0:
 			continue
 		var ang := absf(dir.angle_to(v))
-		if ang > 0.85:
+		if ang > cone:
 			continue
 		var open: float = m.ai[p.team].nearest_opponent_dist(q.pos)
 		var s := cos(ang) * 2.2 - d / 45.0 + minf(open, 6.0) * 0.06
@@ -179,8 +231,15 @@ func pick_receiver(p: Footballer, dir: Vector3, through: bool) -> Footballer:
 
 func _pass(p: Footballer, dir: Vector3, kind: int) -> void:
 	var c := p.cmd
-	var q := pick_receiver(p, dir, kind == Cmd.Act.THROUGH)
+	var q := pick_receiver(p, dir, kind == Cmd.Act.THROUGH, 0.42 if inp.aim_mode else 0.85)
 	var tgt := p.pos + dir * 16.0
+	if inp.aim_mode:
+		# no teammate under the crosshair → play it into the space you aim at
+		var g := _ray_ground()
+		if g != Vector3.INF:
+			var off := g - p.pos
+			off.y = 0
+			tgt = p.pos + off.normalized() * clampf(off.length(), 6.0, 38.0)
 	if q:
 		var d := p.pos.distance_to(q.pos)
 		if kind == Cmd.Act.THROUGH:
@@ -193,7 +252,7 @@ func _pass(p: Footballer, dir: Vector3, kind: int) -> void:
 			kind = Cmd.Act.CROSS
 	else:
 		c.receiver = -1
-		if kind == Cmd.Act.LOB:
+		if kind == Cmd.Act.LOB and not inp.aim_mode:
 			tgt = p.pos + dir * 28.0
 	c.act = kind
 	c.target = m.pitch.clamp_player(tgt)
@@ -228,6 +287,52 @@ func _shoot(p: Footballer, mv: Vector3, power: float) -> void:
 	if power < 0.62 and dist > 11.0:
 		# placed finesse shot: curl toward the far post
 		c.spin = Vector3(0, -signf(z - p.pos.z) * side * 30.0, 0)
+	else:
+		c.spin = Vector3.ZERO
+
+
+# --- camera aim helpers (PC / gamepad) ------------------------------------------
+
+func _aim_flat() -> Vector3:
+	var d := Vector3(aim_dir.x, 0, aim_dir.z)
+	return d.normalized() if d.length() > 0.01 else player().face
+
+
+func _ray_ground() -> Vector3:
+	if aim_dir.y > -0.02:
+		return Vector3.INF
+	var t := -aim_origin.y / aim_dir.y
+	return aim_origin + aim_dir * t if t < 80.0 else Vector3.INF
+
+
+func _ray_plane_x(x: float) -> Vector3:
+	if absf(aim_dir.x) < 0.02:
+		return Vector3.INF
+	var t := (x - aim_origin.x) / aim_dir.x
+	return aim_origin + aim_dir * t if t > 0.0 else Vector3.INF
+
+
+## Shoot exactly where the crosshair points (REMATCH-style): the aim ray meets
+## the goal plane; misses are possible — no auto-aim on PC.
+func _shoot_aim(p: Footballer, power: float) -> void:
+	var c := p.cmd
+	var side := m.side_of(p.team)
+	var gx := m.pitch.goal_x(side)
+	var gw := m.pitch.goal_width
+	var tgt := Vector3.INF
+	if signf(aim_dir.x) == float(side):
+		tgt = _ray_plane_x(gx)
+	if tgt == Vector3.INF:
+		tgt = p.pos + _aim_flat() * 25.0 + Vector3(0, 1.0, 0)
+	else:
+		tgt.z = clampf(tgt.z, -gw * 0.5 - 2.0, gw * 0.5 + 2.0)
+		tgt.y = clampf(tgt.y, 0.15, m.pitch.goal_height + 1.5)
+	c.act = Cmd.Act.SHOT
+	c.target = tgt
+	c.power = power
+	var d := p.pos.distance_to(Vector3(gx, 0, 0))
+	if power < 0.55 and d > 12.0:
+		c.spin = Vector3(0, -signf(tgt.z - p.pos.z) * side * 26.0, 0)
 	else:
 		c.spin = Vector3.ZERO
 

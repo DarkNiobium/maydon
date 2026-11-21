@@ -3,3 +3,26 @@ logs/
 game/.godot/
 game/build/
 *.tmp
+game/android/
+.godot_cfg/
+.secrets/
+game/assets/secret/
+# generated / heavy (2026-11-21)
+game/.godot_cfg/
+trailer/raw/
+trailer/build/
+trailer/clips/
+trailer/preview/
+trailer/*.mp4
+trailer/*.avi
+trailer/*.wav
+blender/custom/work/
+blender/**/tmp_render*/
+blender/**/__pycache__/
+blender/**/*.blend1
+blender/**/cache/
+*.keystore
+*.jks
+*.apk
+*.aab
+*.avi

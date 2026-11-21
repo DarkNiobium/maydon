@@ -1,0 +1,27 @@
+00:08.125  cycles           | WARNING HIPEW initialization failed: Error opening HIP dynamic library
+[maydon] FINAL tris 9943 body 6276 kit 3667
+[maydon] DONE p01 9943 tris 27.0 s -> /home/abubakrx/maydon/game/assets/chars/variants/p01.glb
+[maydon] FINAL tris 9944 body 6397 kit 3547
+[maydon] DONE p02 9944 tris 23.5 s -> /home/abubakrx/maydon/game/assets/chars/variants/p02.glb
+[maydon] FINAL tris 9944 body 6196 kit 3748
+[maydon] DONE p03 9944 tris 25.0 s -> /home/abubakrx/maydon/game/assets/chars/variants/p03.glb
+[maydon] FINAL tris 9943 body 6018 kit 3925
+[maydon] DONE p04 9943 tris 23.3 s -> /home/abubakrx/maydon/game/assets/chars/variants/p04.glb
+[maydon] FINAL tris 9939 body 6392 kit 3547
+[maydon] DONE p05 9939 tris 18.5 s -> /home/abubakrx/maydon/game/assets/chars/variants/p05.glb
+[maydon] FINAL tris 9939 body 6014 kit 3925
+[maydon] DONE p06 9939 tris 17.3 s -> /home/abubakrx/maydon/game/assets/chars/variants/p06.glb
+[maydon] FINAL tris 9940 body 6274 kit 3666
+[maydon] DONE p07 9940 tris 17.0 s -> /home/abubakrx/maydon/game/assets/chars/variants/p07.glb
+[maydon] FINAL tris 9941 body 6016 kit 3925
+[maydon] DONE p08 9941 tris 15.3 s -> /home/abubakrx/maydon/game/assets/chars/variants/p08.glb
+[maydon] FINAL tris 9940 body 6396 kit 3544
+[maydon] DONE p09 9940 tris 14.5 s -> /home/abubakrx/maydon/game/assets/chars/variants/p09.glb
+[maydon] FINAL tris 9945 body 6439 kit 3506
+[maydon] DONE p10 9945 tris 14.8 s -> /home/abubakrx/maydon/game/assets/chars/variants/p10.glb
+[maydon] FINAL tris 9947 body 6022 kit 3925
+[maydon] DONE p11 9947 tris 13.8 s -> /home/abubakrx/maydon/game/assets/chars/variants/p11.glb
+[maydon] FINAL tris 9940 body 6394 kit 3546
+[maydon] DONE p12 9940 tris 15.1 s -> /home/abubakrx/maydon/game/assets/chars/variants/p12.glb
+Traceback (most recent call last):
+RuntimeError: unregister_class(...):, missing bl_rna attribute from '_RNAMeta' instance (may not be registered)

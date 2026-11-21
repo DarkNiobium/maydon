@@ -23,6 +23,11 @@ var _font: Font
 var _font_text: Font
 var _name_lbl: Label
 var _stamina: ProgressBar
+var crosshair := false
+var emote_wheel: EmoteWheel
+var emote_btn: Button
+var _cross: Control
+var _power := -1.0
 
 
 func setup(sim: MatchSim, hid: int, show_touch: bool) -> void:
@@ -35,12 +40,19 @@ func setup(sim: MatchSim, hid: int, show_touch: bool) -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	var inset := maxf(UiKit.safe_left(), UiKit.safe_right())
+	root.offset_left = inset
+	root.offset_right = -inset
 	_build_scorebug(root)
 	_build_banner(root)
 	_radar = Control.new()
 	_radar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_radar.draw.connect(_draw_radar)
 	root.add_child(_radar)
+	_cross = Control.new()
+	_cross.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cross.draw.connect(_draw_cross)
+	add_child(_cross)
 	var pb := Button.new()
 	pb.text = "II"
 	pb.add_theme_font_override("font", _font)
@@ -91,11 +103,33 @@ func setup(sim: MatchSim, hid: int, show_touch: bool) -> void:
 		_stamina.add_theme_stylebox_override("background", bg)
 		_stamina.add_theme_stylebox_override("fill", fg)
 		root.add_child(_stamina)
+	if hid >= 0:
+		emote_btn = Button.new()
+		emote_btn.custom_minimum_size = Vector2(70, 60)
+		emote_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		emote_btn.position = Vector2(-172, 18)
+		emote_btn.focus_mode = Control.FOCUS_NONE
+		emote_btn.add_theme_stylebox_override("normal", sbx)
+		emote_btn.add_theme_stylebox_override("hover", sbx)
+		emote_btn.add_theme_stylebox_override("pressed", sbx)
+		emote_btn.draw.connect(func() -> void:
+			var c := emote_btn.size * 0.5
+			emote_btn.draw_arc(c, 17.0, 0, TAU, 32, Color.WHITE, 3.0, true)
+			emote_btn.draw_circle(c + Vector2(-6, -5), 2.6, Color.WHITE)
+			emote_btn.draw_circle(c + Vector2(6, -5), 2.6, Color.WHITE)
+			emote_btn.draw_arc(c + Vector2(0, 1), 9.0, 0.35, PI - 0.35, 12, Color.WHITE, 2.6, true)
+			if not Game.is_phone():
+				emote_btn.draw_string(_font, Vector2(emote_btn.size.x - 16, emote_btn.size.y - 4), "T", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(1, 1, 1, 0.6)))
+		root.add_child(emote_btn)
 	if show_touch:
 		touch = TouchControls.new()
 		touch.btn_scale = float(Game.settings.get("btn_scale", 1.0))
 		touch.btn_alpha = float(Game.settings.get("btn_alpha", 0.8))
-		root.add_child(touch)
+		add_child(touch)   # full-screen layer (handles safe area itself)
+	if hid >= 0:
+		emote_wheel = EmoteWheel.new()
+		add_child(emote_wheel)
+		emote_btn.pressed.connect(emote_wheel.open)
 
 
 func _panel(c: Color) -> StyleBoxFlat:
@@ -167,8 +201,9 @@ func _build_banner(root: Control) -> void:
 	root.add_child(_sub)
 
 
-func banner(text: String, sub := "", dur := 2.5, col := Color.WHITE) -> void:
+func banner(text: String, sub := "", dur := 2.5, col := Color.WHITE, fs := 120) -> void:
 	_banner.text = text
+	_banner.add_theme_font_size_override("font_size", fs)
 	_banner.add_theme_color_override("font_color", col)
 	_sub.text = sub
 	_banner_t = dur
@@ -181,6 +216,36 @@ func banner(text: String, sub := "", dur := 2.5, col := Color.WHITE) -> void:
 func hint(text: String, dur := 2.0) -> void:
 	_hint.text = text
 	_hint_t = dur
+
+
+var _click_lbl: Label
+
+
+func click_hint(on: bool) -> void:
+	if _click_lbl == null:
+		if not on:
+			return
+		_click_lbl = Label.new()
+		_click_lbl.text = tr("CLICK_TO_PLAY")
+		_click_lbl.add_theme_font_override("font", _font)
+		_click_lbl.add_theme_font_size_override("font_size", 34)
+		_click_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+		_click_lbl.add_theme_constant_override("outline_size", 10)
+		_click_lbl.set_anchors_preset(Control.PRESET_CENTER)
+		_click_lbl.offset_left = -500
+		_click_lbl.offset_right = 500
+		_click_lbl.offset_top = 60
+		_click_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_click_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_click_lbl)
+	_click_lbl.visible = on
+
+
+func set_human(id: int) -> void:
+	human_id = id
+	if _name_lbl and id >= 0:
+		var p: Footballer = m.players[id]
+		_name_lbl.text = "%d  %s  ·  %s" % [p.number, p.pname.to_upper(), Formations.role_name(p.role)]
 
 
 func update_hud(dt: float, now: float, ctx: String, power: float) -> void:
@@ -203,6 +268,8 @@ func update_hud(dt: float, now: float, ctx: String, power: float) -> void:
 		_hint.modulate.a = minf(1.0, _hint_t * 2.5)
 	else:
 		_hint.modulate.a = 0.0
+	_power = power
+	_cross.queue_redraw()
 	if touch:
 		touch.set_context(ctx)
 		touch.set_power(power)
@@ -210,6 +277,19 @@ func update_hud(dt: float, now: float, ctx: String, power: float) -> void:
 	if _stamina and human_id >= 0:
 		_stamina.value = m.players[human_id].stamina
 	_radar.queue_redraw()
+
+
+func _draw_cross() -> void:
+	if not crosshair:
+		return
+	var c := _cross.get_viewport_rect().size * 0.5
+	var col := Color(1, 1, 1, 0.85)
+	_cross.draw_arc(c, 9.0, 0, TAU, 32, Color(0, 0, 0, 0.35), 4.0, true)
+	_cross.draw_arc(c, 9.0, 0, TAU, 32, col, 2.0, true)
+	_cross.draw_circle(c, 1.8, col)
+	if _power >= 0.0:
+		var pc := Color(0.2, 0.95, 0.45).lerp(Color(1.0, 0.25, 0.15), clampf((_power - 0.6) / 0.4, 0.0, 1.0))
+		_cross.draw_arc(c, 18.0, -PI * 0.5, -PI * 0.5 + TAU * _power, 48, pc, 4.0, true)
 
 
 func _draw_radar() -> void:

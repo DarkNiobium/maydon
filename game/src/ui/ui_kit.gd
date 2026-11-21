@@ -64,3 +64,27 @@ static func label(txt: String, fs := 28, col := Color.WHITE, display := true) ->
 	l.add_theme_font_size_override("font_size", fs)
 	l.add_theme_color_override("font_color", col)
 	return l
+
+
+## Display cutout insets (punch-hole cameras) in canvas units.
+static func _insets() -> Vector2:
+	if not Game.is_phone():
+		return Vector2.ZERO
+	var safe := DisplayServer.get_display_safe_area()
+	var scr := DisplayServer.screen_get_size()
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or scr.x <= 0:
+		return Vector2.ZERO
+	var vp := tree.root.get_visible_rect().size
+	var k := vp.x / float(scr.x)
+	var left := float(safe.position.x) * k
+	var right := float(scr.x - safe.end.x) * k
+	return Vector2(clampf(left, 0.0, 160.0), clampf(right, 0.0, 160.0))
+
+
+static func safe_left() -> float:
+	return _insets().x
+
+
+static func safe_right() -> float:
+	return _insets().y

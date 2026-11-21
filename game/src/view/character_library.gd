@@ -9,5 +9,5 @@ static var _ok := false
 static func available() -> bool:
 	if not _checked:
 		_checked = true
-		_ok = ResourceLoader.exists("res://assets/chars/player_base.tscn") and not OS.get_cmdline_user_args().has("--simple")
+		_ok = not OS.get_cmdline_user_args().has("--simple") and CharacterView.load_shared()
 	return _ok

@@ -21,6 +21,7 @@ var roll_k := 0.085           # speed-proportional rolling deceleration (1/s)
 var bounce_e := 0.58
 var in_goal := 0                # side of the goal the ball is inside of, 0 = none
 var in_hands := -1              # id of goalkeeper holding the ball, -1 = none
+var fast := false               # prediction mode: coarse substeps, no goal-frame collisions
 var events: Array = []          # {t:String, p:Vector3, s:float}
 var frozen := false
 
@@ -71,7 +72,7 @@ func step(dt: float) -> void:
 	if frozen or in_hands >= 0:
 		return
 	var sp := vel.length()
-	var n := clampi(int(ceil(sp * dt / 0.07)), 1, 10)
+	var n := clampi(int(ceil(sp * dt / (0.07 if not fast else 0.25))), 1, 10)
 	var h := dt / n
 	for i in n:
 		_substep(h)
@@ -163,11 +164,7 @@ func _collide_world(prev: Vector3) -> void:
 	var az := absf(pos.z)
 
 	# --- goal frame: posts and crossbar -----------------------------------
-	var pr := pitch.post_radius
-	for zs: float in [-1.0, 1.0]:
-		var c := Vector3(hl * side, 0.0, (gw2 + pr) * zs)
-		_collide_segment(c, c + Vector3(0.0, gh + pr, 0.0), pr, "post")
-	_collide_segment(Vector3(hl * side, gh + pr, -gw2 - pr), Vector3(hl * side, gh + pr, gw2 + pr), pr, "bar")
+	_frame(side, hl, gw2, gh, pitch.post_radius)
 
 	# --- goal net box ---------------------------------------------------------
 	var inside_x := ax > hl + 0.001 and ax < hl + depth + R
@@ -244,6 +241,15 @@ func _collide_world(prev: Vector3) -> void:
 		events.append({"t": "wall", "p": pos, "s": spd2})
 
 
+func _frame(side: int, hl: float, gw2: float, gh: float, pr: float) -> void:
+	if absf(absf(pos.x) - hl) > 0.6:
+		return
+	for zs: float in [-1.0, 1.0]:
+		var c := Vector3(hl * side, 0.0, (gw2 + pr) * zs)
+		_collide_segment(c, c + Vector3(0.0, gh + pr, 0.0), pr, "post")
+	_collide_segment(Vector3(hl * side, gh + pr, -gw2 - pr), Vector3(hl * side, gh + pr, gw2 + pr), pr, "bar")
+
+
 func _collide_segment(a: Vector3, b: Vector3, r: float, kind: String) -> void:
 	var ab := b - a
 	var t := clampf((pos - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
@@ -285,6 +291,7 @@ func predict(steps: int, dt: float) -> PackedVector3Array:
 	b.roll_k = roll_k
 	b.bounce_e = bounce_e
 	b.in_goal = in_goal
+	b.fast = true
 	var out := PackedVector3Array()
 	out.resize(steps)
 	for i in steps:
@@ -315,7 +322,7 @@ static func pass_arrive_speed(d: float, through := false) -> float:
 func ground_pass_speed(d: float, v_arrive: float) -> float:
 	var lo := v_arrive
 	var hi := 45.0
-	for i in 28:
+	for i in 16:
 		var mid := (lo + hi) * 0.5
 		if roll_distance(mid, v_arrive) < d:
 			lo = mid
@@ -335,7 +342,7 @@ func roll_time(v0: float, d: float) -> float:
 	var smax := a * (1.0 - exp(-k * hi)) / k - (c / k) * hi
 	if d > smax:
 		return INF
-	for i in 30:
+	for i in 18:
 		var mid := (lo + hi) * 0.5
 		var s := a * (1.0 - exp(-k * mid)) / k - (c / k) * mid
 		if s < d:

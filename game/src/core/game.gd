@@ -18,15 +18,15 @@ const KIT_PRESETS := [
 ]
 
 var settings := {
-	"lang": "uz", "quality": -1, "camera": 0, "sfx": 0.9, "music": 0.55, "vibration": true,
+	"lang": "uz", "quality": -1, "camera": 0, "sfx": 0.0, "music": 0.0, "vibration": true,
 	"btn_scale": 1.0, "btn_alpha": 0.8, "gk_assist": true, "aim_assist": 1.0,
-	"difficulty": 1, "match_len": 240, "fps60": true,
+	"difficulty": 1, "match_len": 240, "fps60": true, "mouse_sens": 0.5, "invert_y": false, "mode": 11,
 }
 
 var profile := {
 	"name": "", "number": 10, "role": Footballer.Role.FWD, "face": 0, "skin": 1, "hair": 0,
 	"boots": 0, "celebration": 0,
-	"club": {"name": "", "short": "", "kit": 0, "district": 0, "emblem": 0},
+	"look": {},
 	"xp": 0, "level": 1, "coins": 0,
 	"career": {"matches": 0, "wins": 0, "draws": 0, "losses": 0, "goals": 0, "assists": 0,
 		"motm": 0, "rating_sum": 0.0, "clean_sheets": 0, "saves": 0, "tackles": 0},
@@ -49,6 +49,31 @@ func _ready() -> void:
 	TranslationServer.set_locale(settings["lang"])
 	_apply_display()
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	var th := Theme.new()
+	th.default_font = load("res://assets/fonts/Oswald.ttf")
+	th.default_font_size = 28
+	th.set_font_size("font_size", "LineEdit", 30)
+	th.set_font_size("font_size", "SpinBox", 30)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(1, 1, 1, 0.08)
+	sb.set_corner_radius_all(10)
+	sb.content_margin_left = 14
+	sb.content_margin_right = 14
+	th.set_stylebox("normal", "LineEdit", sb)
+	var grab := StyleBoxFlat.new()
+	grab.bg_color = Color(0.16, 0.86, 0.48)
+	grab.set_corner_radius_all(6)
+	grab.content_margin_top = 6
+	grab.content_margin_bottom = 6
+	th.set_stylebox("grabber_area", "HSlider", grab)
+	th.set_stylebox("grabber_area_highlight", "HSlider", grab)
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color(1, 1, 1, 0.15)
+	track.set_corner_radius_all(6)
+	track.content_margin_top = 6
+	track.content_margin_bottom = 6
+	th.set_stylebox("slider", "HSlider", track)
+	get_tree().root.theme = th
 	var cl := CanvasLayer.new()
 	cl.layer = 100
 	add_child(cl)
@@ -59,7 +84,19 @@ func _ready() -> void:
 	cl.add_child(_fade)
 
 
+## Phone/tablet (native or mobile browser) vs. PC. Touch controls and phone-style
+## assists only on phones; a touchscreen laptop is still a PC (mouse + keyboard).
+static func is_phone() -> bool:
+	return OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
+
+
+static func is_web() -> bool:
+	return OS.has_feature("web")
+
+
 func _detect_quality() -> int:
+	if OS.has_feature("web"):
+		return 0 if is_phone() else 1     # WebGL2: phones low, PC medium
 	if OS.has_feature("mobile"):
 		var name := RenderingServer.get_video_adapter_name().to_lower()
 		if name.contains("adreno (tm) 6") or name.contains("adreno (tm) 7") or name.contains("mali-g7") or name.contains("immortalis") or name.contains("xclipse"):
@@ -109,6 +146,13 @@ func goto(path: String) -> void:
 	tw.tween_property(_fade, "color:a", 0.0, 0.25)
 
 
+## Fixed team identities (blue vs orange) with realistic modern kits.
+func team_kit(t: int) -> Dictionary:
+	if t == 0:
+		return {"name": "Blue", "shirt": Color(0.08, 0.32, 0.86), "shorts": Color(0.05, 0.12, 0.35), "socks": Color(0.08, 0.32, 0.86), "num": Color.WHITE, "pattern": 0}
+	return {"name": "Orange", "shirt": Color(1.0, 0.42, 0.06), "shorts": Color(0.12, 0.12, 0.14), "socks": Color(1.0, 0.42, 0.06), "num": Color(0.08, 0.08, 0.1), "pattern": 0}
+
+
 func kit(i: int) -> Dictionary:
 	return KIT_PRESETS[clampi(i, 0, KIT_PRESETS.size() - 1)].duplicate()
 
@@ -137,20 +181,10 @@ func player_name() -> String:
 
 
 func club_name() -> String:
-	var c: Dictionary = profile["club"]
-	if str(c.get("name", "")) != "":
-		return c["name"]
-	return Names.DISTRICTS[int(c.get("district", 0)) % Names.DISTRICTS.size()]
+	return "MAYDON"
 
 
-func club_short() -> String:
-	var c: Dictionary = profile["club"]
-	if str(c.get("short", "")) != "":
-		return c["short"]
-	return club_name().substr(0, 3).to_upper()
-
-
-## Quick match against a random district team.
+## Quick match: Blue (you) vs Orange, REMATCH-style — no fake clubs.
 func quick_match(per_side: int, role: int, difficulty: int, night := true) -> MatchConfig:
 	var cfg := MatchConfig.new()
 	cfg.per_side = per_side
@@ -160,17 +194,12 @@ func quick_match(per_side: int, role: int, difficulty: int, night := true) -> Ma
 	cfg.difficulty = difficulty
 	cfg.night = night
 	cfg.seed = randi()
-	var home_kit := int(profile["club"].get("kit", 0))
-	var opp := randi() % Names.DISTRICTS.size()
-	if opp == int(profile["club"].get("district", 0)):
-		opp = (opp + 1) % Names.DISTRICTS.size()
-	var away_kit := contrasting_kit(home_kit, randi() % KIT_PRESETS.size())
-	cfg.team_names = [club_name(), Names.DISTRICTS[opp]]
-	cfg.team_short = [club_short(), Names.DISTRICTS[opp].substr(0, 3).to_upper()]
-	cfg.kits = [kit(home_kit), kit(away_kit)]
+	cfg.team_names = [TranslationServer.translate("TEAM_BLUE"), TranslationServer.translate("TEAM_ORANGE")]
+	cfg.team_short = [TranslationServer.translate("TEAM_BLUE_S"), TranslationServer.translate("TEAM_ORANGE_S")]
+	cfg.kits = [team_kit(0), team_kit(1)]
 	cfg.gk_kits = [{"shirt": Color(0.95, 0.85, 0.1), "shorts": Color(0.1, 0.1, 0.1), "socks": Color(0.95, 0.85, 0.1)},
 		{"shirt": Color(0.2, 0.85, 0.35), "shorts": Color(0.1, 0.1, 0.1), "socks": Color(0.2, 0.85, 0.35)}]
-	var lvl := 0.55 + float(profile.get("level", 1)) * 0.004
+	var lvl := 0.58 + float(profile.get("level", 1)) * 0.011
 	cfg.team_strength = [0.62, [0.5, 0.6, 0.7, 0.8][clampi(difficulty, 0, 3)]]
 	cfg.humans = [{"team": 0, "role": role, "idx": 0, "name": player_name(), "number": int(profile.get("number", 10)), "level": clampf(lvl, 0.55, 0.9)}]
 	cfg.gk_assist = bool(settings.get("gk_assist", true))

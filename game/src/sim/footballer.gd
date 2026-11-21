@@ -48,6 +48,9 @@ var act_seq := 0                 # increments per action (view uses it to restar
 var stun := 0.0
 var no_touch := 0.0              # can't touch the ball for this long (just kicked)
 var touch_cd := 0.0
+var touch_at := -1.0             # sim clock of the next planned dribble touch (-1 = none); the view
+                                 # reaches the foot to the ball for it (phase-locked to `gait`)
+var touch_foot := 1              # foot of the planned touch: 1 = right, -1 = left
 var sent_off := false
 var yellow := 0
 
@@ -57,6 +60,45 @@ var stats := {
 	"interceptions": 0, "saves": 0, "dribbles": 0, "lost": 0, "fouls": 0,
 	"blocks": 0, "touches": 0, "zone_t": 0.0, "play_t": 0.0, "conceded": 0,
 }
+
+
+## Stronger foot: 1 = right, -1 = left (about one in five players is left-footed).
+func strong_foot() -> int:
+	return -1 if (id * 7 + number * 3) % 5 == 0 else 1
+
+
+## Step cycles per second at ground speed `sp` (one cycle = right + left step). Same table as the
+## animation library (walk/jog/run/sprint cycle lengths), so the view can phase-lock to `gait`.
+const GAIT_TABLE := [[0.0, 0.0], [0.6, 0.62], [1.75, 1.0], [3.35, 1.43], [5.19, 1.58], [6.9, 1.875]]
+static func gait_freq(sp: float) -> float:
+	if sp <= 0.25:
+		return 0.0
+	for i in range(1, GAIT_TABLE.size()):
+		var b: Array = GAIT_TABLE[i]
+		if sp <= b[0]:
+			var a: Array = GAIT_TABLE[i - 1]
+			return lerpf(a[1], b[1], (sp - float(a[0])) / (float(b[0]) - float(a[0])))
+	var last: Array = GAIT_TABLE[-1]
+	return float(last[1]) * sqrt(sp / float(last[0]))
+
+
+## Gait phases at which a swinging foot passes the ball: right foot late swing (phase 0 = right
+## foot strike), left foot half a cycle later. Returns [seconds until the window, foot].
+const TOUCH_PHASE := 0.86
+func next_touch_window(min_lead: float) -> Array:
+	var f := gait_freq(vel.length())
+	if f < 0.3:
+		return [INF, strong_foot()]
+	var best := INF
+	var bf := 1
+	for w: Array in [[TOUCH_PHASE, 1], [TOUCH_PHASE - 0.5, -1]]:
+		var dt := fposmod(float(w[0]) - gait, 1.0) / f
+		if dt < min_lead:
+			dt += 1.0 / f
+		if dt < best:
+			best = dt
+			bf = w[1]
+	return [best, bf]
 
 
 func is_gk() -> bool:
@@ -73,7 +115,7 @@ func top_speed(sprint: bool) -> float:
 
 
 func accel() -> float:
-	return 5.2 + accel_attr * 2.6
+	return 6.4 + accel_attr * 3.2
 
 
 func busy() -> bool:
@@ -96,6 +138,7 @@ func start_action(a: int, dur: float, contact: float, data := {}) -> void:
 	act_done = false
 	act_data = data
 	act_seq += 1
+	touch_at = -1.0
 
 
 func end_action() -> void:
@@ -135,7 +178,7 @@ func move_step(dt: float, with_ball: bool) -> void:
 			desired *= lerpf(0.75, 1.0, clampf((cosang + 1.0) / 1.3, 0.0, 1.0))
 
 	var a := accel()
-	var brake := 10.5
+	var brake := 13.5
 	var dsp := desired.length()
 	if sp < 1.6 or jock:
 		# low speed: omnidirectional, quick footwork
@@ -144,7 +187,7 @@ func move_step(dt: float, with_ball: bool) -> void:
 		var vdir := vel / sp
 		var ddir := desired / dsp if dsp > 0.05 else vdir
 		var ang := vdir.signed_angle_to(ddir, Vector3.UP)
-		var a_lat := 9.0 + accel_attr * 3.0
+		var a_lat := 11.5 + accel_attr * 4.0
 		if with_ball:
 			a_lat *= 0.85 + dribble_attr * 0.2
 		var max_turn := a_lat / sp * dt
@@ -162,7 +205,7 @@ func move_step(dt: float, with_ball: bool) -> void:
 	pos.y = 0.0
 
 	# facing
-	var turn := 9.0 if not with_ball else 7.0
+	var turn := 12.0 if not with_ball else 9.5
 	var fd := Vector3.ZERO
 	if jock:
 		fd = look_dir.normalized()
@@ -181,10 +224,7 @@ func move_step(dt: float, with_ball: bool) -> void:
 
 
 func _gait_step(dt: float) -> void:
-	var sp := vel.length()
-	var f := 0.0
-	if sp > 0.25:
-		f = 0.75 + 0.18 * sp
+	var f := gait_freq(vel.length())
 	var prev := gait
 	gait = fmod(gait + f * dt, 1.0)
 	if (prev < 0.5 and gait >= 0.5) or gait < prev:

@@ -7,13 +7,13 @@ F = os.path.expanduser("~/maydon/game/assets/fonts/Oswald.ttf")
 W, H = 4096, 128          # 8 ads of 512x128 (each = 4 m of board)
 ads = [
     ("MAYDON", (12, 160, 90), (255, 255, 255)),
-    ("CHOYXONA 24", (180, 30, 40), (255, 230, 160)),
-    ("TOSHKENT NON", (230, 160, 20), (40, 20, 0)),
-    ("UZSPORT TV", (20, 60, 170), (255, 255, 255)),
-    ("OSH MARKAZI", (240, 240, 240), (170, 40, 20)),
-    ("SAMARQAND SUV", (0, 140, 200), (255, 255, 255)),
-    ("NAVRO'Z BANK", (90, 20, 120), (255, 210, 80)),
-    ("PAXTA KIYIM", (25, 25, 30), (120, 220, 255)),
+    ("FAIR PLAY", (245, 245, 245), (20, 30, 40)),
+    ("#MAYDON", (20, 60, 170), (255, 255, 255)),
+    ("PLAY HARD", (15, 15, 18), (255, 140, 30)),
+    ("MAYDON ARENA", (12, 160, 90), (10, 20, 15)),
+    ("RESPECT", (30, 30, 36), (255, 255, 255)),
+    ("MAYDON", (255, 110, 20), (20, 20, 22)),
+    ("NO LIMITS", (10, 90, 200), (255, 255, 255)),
 ]
 img = Image.new("RGB", (W, H))
 d = ImageDraw.Draw(img)

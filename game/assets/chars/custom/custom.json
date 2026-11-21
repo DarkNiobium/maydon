@@ -1,0 +1,1265 @@
+{
+ "file": "base.glb",
+ "generator": "~/maydon/blender/custom/build.py (Blender 5.2 + MPFB2, MakeHuman CC0 assets)",
+ "space": {
+  "units": "metres",
+  "up": "+Y",
+  "forward": "+Z (character faces +Z)",
+  "ground": "bare soles at y=0; boot studs reach 1-2.4 cm below 0 (boots.*.lowest_y_m)",
+  "rest_pose": "MPFB/MakeHuman base pose (arms ~45 deg down, elbows slightly bent); identical to anims.glb rig, no rescale",
+  "height_m": 1.8
+ },
+ "skeleton": {
+  "name": "Armature",
+  "bones": [
+   "Root",
+   "pelvis",
+   "spine_01",
+   "spine_02",
+   "spine_03",
+   "clavicle_l",
+   "upperarm_l",
+   "lowerarm_l",
+   "hand_l",
+   "index_01_l",
+   "index_02_l",
+   "index_03_l",
+   "middle_01_l",
+   "middle_02_l",
+   "middle_03_l",
+   "pinky_01_l",
+   "pinky_02_l",
+   "pinky_03_l",
+   "ring_01_l",
+   "ring_02_l",
+   "ring_03_l",
+   "thumb_01_l",
+   "thumb_02_l",
+   "thumb_03_l",
+   "clavicle_r",
+   "upperarm_r",
+   "lowerarm_r",
+   "hand_r",
+   "index_01_r",
+   "index_02_r",
+   "index_03_r",
+   "middle_01_r",
+   "middle_02_r",
+   "middle_03_r",
+   "pinky_01_r",
+   "pinky_02_r",
+   "pinky_03_r",
+   "ring_01_r",
+   "ring_02_r",
+   "ring_03_r",
+   "thumb_01_r",
+   "thumb_02_r",
+   "thumb_03_r",
+   "neck_01",
+   "head",
+   "thigh_l",
+   "calf_l",
+   "foot_l",
+   "ball_l",
+   "thigh_r",
+   "calf_r",
+   "foot_r",
+   "ball_r"
+  ],
+  "note": "MPFB game_engine rig, unchanged (same rest pose as ~/maydon/blender/anim/ref.blend)"
+ },
+ "meshes": {
+  "Acc_armband": {
+   "material": "acc",
+   "tris": 112,
+   "verts": 99,
+   "morphs": 3
+  },
+  "Acc_gloves": {
+   "material": "acc",
+   "tris": 1100,
+   "verts": 768,
+   "morphs": 3
+  },
+  "Acc_headband": {
+   "material": "acc",
+   "tris": 176,
+   "verts": 159,
+   "morphs": 13
+  },
+  "Acc_undershirt_neck": {
+   "material": "acc",
+   "tris": 240,
+   "verts": 193,
+   "morphs": 14
+  },
+  "Acc_wristband_l": {
+   "material": "acc",
+   "tris": 96,
+   "verts": 91,
+   "morphs": 3
+  },
+  "Acc_wristband_r": {
+   "material": "acc",
+   "tris": 96,
+   "verts": 91,
+   "morphs": 3
+  },
+  "Body": {
+   "material": "skin",
+   "tris": 8132,
+   "verts": 4693,
+   "morphs": 38
+  },
+  "Boots_1": {
+   "material": "kit",
+   "tris": 1052,
+   "verts": 774,
+   "morphs": 3
+  },
+  "Boots_2": {
+   "material": "kit",
+   "tris": 1052,
+   "verts": 776,
+   "morphs": 3
+  },
+  "Boots_3": {
+   "material": "kit",
+   "tris": 1050,
+   "verts": 854,
+   "morphs": 3
+  },
+  "Boots_4": {
+   "material": "kit",
+   "tris": 1050,
+   "verts": 1016,
+   "morphs": 3
+  },
+  "Human.eyelashes01": {
+   "material": "lash",
+   "tris": 300,
+   "verts": 216,
+   "morphs": 11
+  },
+  "Human.low-poly": {
+   "material": "eye",
+   "tris": 172,
+   "verts": 96,
+   "morphs": 7
+  },
+  "Human.teeth_base": {
+   "material": "teeth",
+   "tris": 138,
+   "verts": 280,
+   "morphs": 8
+  },
+  "Kit": {
+   "material": "kit",
+   "tris": 4191,
+   "verts": 2949,
+   "morphs": 4
+  },
+  "Sleeves_long": {
+   "material": "kit",
+   "tris": 360,
+   "verts": 338,
+   "morphs": 3
+  },
+  "Socks_low": {
+   "material": "kit",
+   "tris": 380,
+   "verts": 404,
+   "morphs": 3
+  },
+  "hair_afro": {
+   "material": "hair",
+   "tris": 2192,
+   "verts": 2200,
+   "morphs": 15
+  },
+  "hair_braids": {
+   "material": "hair",
+   "tris": 1020,
+   "verts": 582,
+   "morphs": 15
+  },
+  "hair_buzz": {
+   "material": "hair",
+   "tris": 1020,
+   "verts": 582,
+   "morphs": 15
+  },
+  "hair_crop": {
+   "material": "hair",
+   "tris": 2400,
+   "verts": 1359,
+   "morphs": 17
+  },
+  "hair_curly": {
+   "material": "hair",
+   "tris": 2192,
+   "verts": 2200,
+   "morphs": 15
+  },
+  "hair_long": {
+   "material": "hair",
+   "tris": 2449,
+   "verts": 2299,
+   "morphs": 11
+  },
+  "hair_man_bun": {
+   "material": "hair",
+   "tris": 2450,
+   "verts": 2329,
+   "morphs": 15
+  },
+  "hair_quiff": {
+   "material": "hair",
+   "tris": 2399,
+   "verts": 1363,
+   "morphs": 17
+  },
+  "hair_short_fade": {
+   "material": "hair",
+   "tris": 2400,
+   "verts": 2383,
+   "morphs": 15
+  },
+  "hair_side_part": {
+   "material": "hair",
+   "tris": 1050,
+   "verts": 999,
+   "morphs": 17
+  },
+  "hair_slick_back": {
+   "material": "hair",
+   "tris": 1644,
+   "verts": 1112,
+   "morphs": 15
+  }
+ },
+ "budget": {
+  "limit": 13000,
+  "example_worst_case": {
+   "Body": 8132,
+   "Kit": 4191,
+   "hair_max": 2450,
+   "boots_max": 1052,
+   "total_worst": 15825
+  },
+  "note": "Body + Kit + largest hair + largest boot pair. Gear extras: Sleeves_long 360, Socks_low 380, Acc_gloves 1100, bands 96-240."
+ },
+ "materials": {
+  "skin": {
+   "meshes": [
+    "Body"
+   ],
+   "albedo": [
+    "skin_light.jpg",
+    "skin_mid.jpg",
+    "skin_dark.jpg"
+   ],
+   "normal": "skin_normal.jpg (tangent space, OpenGL/+Y, mild pores; optional)",
+   "layout": "MakeHuman body UV layout, 1024. Eyes in EYE_RECT, teeth in TEETH_RECT (same atlas)",
+   "EYE_RECT_uv": [
+    0.77,
+    0.875,
+    0.885,
+    0.99
+   ],
+   "TEETH_RECT_uv": [
+    0.892,
+    0.902,
+    0.98,
+    0.99
+   ],
+   "note": "UV rects are Blender UVs (v up); in glTF / Godot UV v is flipped: v_godot = 1 - v_blender"
+  },
+  "kit": {
+   "meshes": [
+    "Kit",
+    "Sleeves_long",
+    "Socks_low",
+    "Boots_1",
+    "Boots_2",
+    "Boots_3",
+    "Boots_4"
+   ],
+   "albedo": "kit.png (neutral grey + AO; boot details in 4 rects)",
+   "COLOR_0": {
+    "shirt": [
+     1,
+     0,
+     0,
+     0
+    ],
+    "trim (collar, cuffs)": [
+     0.5,
+     0,
+     0,
+     0
+    ],
+    "shorts": [
+     0,
+     1,
+     0,
+     0
+    ],
+    "socks": [
+     0,
+     0,
+     1,
+     0
+    ],
+    "boots": [
+     0,
+     0,
+     0,
+     1
+    ]
+   },
+   "UV2": "TEXCOORD_1 on every kit mesh. Shirt + Sleeves_long: x -1..1 front, 1..3 back, y 0 hem -> 1 collar (as the p01-p12 variants); other parts (0,0).",
+   "boot_rects_uv": {
+    "Boots_1": [
+     0.648,
+     0.175,
+     0.8,
+     0.335
+    ],
+    "Boots_2": [
+     0.806,
+     0.175,
+     0.958,
+     0.335
+    ],
+    "Boots_3": [
+     0.648,
+     0.345,
+     0.8,
+     0.505
+    ],
+    "Boots_4": [
+     0.806,
+     0.345,
+     0.958,
+     0.505
+    ]
+   }
+  },
+  "acc": {
+   "meshes": [
+    "Acc_headband",
+    "Acc_wristband_l",
+    "Acc_wristband_r",
+    "Acc_gloves",
+    "Acc_armband",
+    "Acc_undershirt_neck"
+   ],
+   "albedo": "acc.png (512, neutral grey with luminance detail); no vertex colours",
+   "rects_uv": {
+    "band": [
+     0.0,
+     0.0,
+     1.0,
+     0.25
+    ],
+    "armband": [
+     0.0,
+     0.25,
+     0.5,
+     0.5
+    ],
+    "neck": [
+     0.5,
+     0.25,
+     1.0,
+     0.5
+    ],
+    "glove": [
+     0.0,
+     0.5,
+     1.0,
+     1.0
+    ]
+   },
+   "tint": "albedo = acc_tint * texture (one tint per accessory instance)"
+  },
+  "hair": {
+   "meshes": [
+    "hair_buzz",
+    "hair_short_fade",
+    "hair_crop",
+    "hair_side_part",
+    "hair_slick_back",
+    "hair_quiff",
+    "hair_curly",
+    "hair_afro",
+    "hair_man_bun",
+    "hair_long",
+    "hair_braids"
+   ],
+   "albedo": "hair_<id>.png per style (512 RGBA, light grey, alpha = strands)",
+   "alpha": "MASK, cutoff 0.5, double sided",
+   "note": "all hair materials are named 'hair' in the GLB but each style has its own texture (UVs of the hair asset)"
+  }
+ },
+ "morph_targets": {
+  "list": [
+   {
+    "name": "head_round",
+    "group": "face",
+    "desc": "rounder, wider skull and face outline",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "head_square",
+    "group": "face",
+    "desc": "square, angular head outline with a broad jaw corner",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "head_long",
+    "group": "face",
+    "desc": "longer, narrower face and head",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly",
+     "Human.teeth_base",
+     "Kit",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "jaw_wide",
+    "group": "face",
+    "desc": "wide, strong mandible (jaw angles pushed out)",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "jaw_narrow",
+    "group": "face",
+    "desc": "narrow, tapered jaw",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "chin_out",
+    "group": "face",
+    "desc": "prominent, forward chin",
+    "meshes": [
+     "Body",
+     "Human.teeth_base"
+    ]
+   },
+   {
+    "name": "chin_in",
+    "group": "face",
+    "desc": "receding chin",
+    "meshes": [
+     "Body",
+     "Human.teeth_base"
+    ]
+   },
+   {
+    "name": "chin_wide",
+    "group": "face",
+    "desc": "broad, flat-fronted chin",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "cheekbones_high",
+    "group": "face",
+    "desc": "high, prominent cheekbones",
+    "meshes": [
+     "Body",
+     "hair_crop",
+     "hair_quiff",
+     "hair_side_part"
+    ]
+   },
+   {
+    "name": "cheeks_full",
+    "group": "face",
+    "desc": "full, round cheeks (soft tissue)",
+    "meshes": [
+     "Acc_undershirt_neck",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "cheeks_hollow",
+    "group": "face",
+    "desc": "hollow, lean cheeks",
+    "meshes": [
+     "Body",
+     "hair_side_part"
+    ]
+   },
+   {
+    "name": "nose_wide",
+    "group": "face",
+    "desc": "wide nose with broad nostrils",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "nose_narrow",
+    "group": "face",
+    "desc": "narrow, thin nose",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "nose_long",
+    "group": "face",
+    "desc": "long nose with a lower tip",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "nose_short",
+    "group": "face",
+    "desc": "short nose with a slightly upturned tip",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "nose_hump",
+    "group": "face",
+    "desc": "convex bridge with a dorsal hump",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "nose_flat",
+    "group": "face",
+    "desc": "flat, low bridge, less projecting nose",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "eyes_big",
+    "group": "face",
+    "desc": "larger eye openings",
+    "meshes": [
+     "Body",
+     "Human.eyelashes01"
+    ]
+   },
+   {
+    "name": "eyes_small",
+    "group": "face",
+    "desc": "smaller eye openings",
+    "meshes": [
+     "Body",
+     "Human.eyelashes01"
+    ]
+   },
+   {
+    "name": "eyes_wide",
+    "group": "face",
+    "desc": "eyes set further apart",
+    "meshes": [
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly",
+     "hair_crop",
+     "hair_quiff"
+    ]
+   },
+   {
+    "name": "eyes_close",
+    "group": "face",
+    "desc": "eyes set closer together",
+    "meshes": [
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly"
+    ]
+   },
+   {
+    "name": "eyes_slant_up",
+    "group": "face",
+    "desc": "outer eye corners raised (upward canthal tilt)",
+    "meshes": [
+     "Body",
+     "Human.eyelashes01"
+    ]
+   },
+   {
+    "name": "eyes_monolid",
+    "group": "face",
+    "desc": "epicanthic fold / monolid upper eyelid (East / Central Asian)",
+    "meshes": [
+     "Body",
+     "Human.eyelashes01"
+    ]
+   },
+   {
+    "name": "brow_heavy",
+    "group": "face",
+    "desc": "protruding brow ridge, deeper-set eyes",
+    "meshes": [
+     "Acc_headband",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "brow_high",
+    "group": "face",
+    "desc": "brows sit higher above the eyes",
+    "meshes": [
+     "Acc_headband",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "lips_full",
+    "group": "face",
+    "desc": "full, thick lips",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "lips_thin",
+    "group": "face",
+    "desc": "thin lips",
+    "meshes": [
+     "Body"
+    ]
+   },
+   {
+    "name": "mouth_wide",
+    "group": "face",
+    "desc": "wider mouth",
+    "meshes": [
+     "Body",
+     "Human.teeth_base"
+    ]
+   },
+   {
+    "name": "ears_big",
+    "group": "face",
+    "desc": "larger ears",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "ears_out",
+    "group": "face",
+    "desc": "protruding ears",
+    "meshes": [
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "forehead_high",
+    "group": "face",
+    "desc": "taller forehead",
+    "meshes": [
+     "Acc_headband",
+     "Body",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "face_mature",
+    "group": "face",
+    "desc": "older face shape: sagging cheeks and jowls, deeper folds",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly",
+     "Human.teeth_base",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "ethnic_east_asian",
+    "group": "extra_face",
+    "desc": "MPFB race macro towards Asian (head only)",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly",
+     "Human.teeth_base",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "ethnic_african",
+    "group": "extra_face",
+    "desc": "MPFB race macro towards African (head only)",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly",
+     "Human.teeth_base",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "ethnic_european",
+    "group": "extra_face",
+    "desc": "MPFB race macro towards Caucasian (head only)",
+    "meshes": [
+     "Acc_headband",
+     "Acc_undershirt_neck",
+     "Body",
+     "Human.eyelashes01",
+     "Human.low-poly",
+     "Human.teeth_base",
+     "hair_afro",
+     "hair_braids",
+     "hair_buzz",
+     "hair_crop",
+     "hair_curly",
+     "hair_long",
+     "hair_man_bun",
+     "hair_quiff",
+     "hair_short_fade",
+     "hair_side_part",
+     "hair_slick_back"
+    ]
+   },
+   {
+    "name": "body_muscular",
+    "group": "body",
+    "desc": "athletic, more muscular body (MPFB muscle macro 0.5 -> 1.0)",
+    "meshes": [
+     "Acc_armband",
+     "Acc_gloves",
+     "Acc_undershirt_neck",
+     "Acc_wristband_l",
+     "Acc_wristband_r",
+     "Body",
+     "Boots_1",
+     "Boots_2",
+     "Boots_3",
+     "Boots_4",
+     "Kit",
+     "Sleeves_long",
+     "Socks_low"
+    ]
+   },
+   {
+    "name": "body_heavy",
+    "group": "body",
+    "desc": "heavier body (MPFB weight macro 0.5 -> 1.0)",
+    "meshes": [
+     "Acc_armband",
+     "Acc_gloves",
+     "Acc_undershirt_neck",
+     "Acc_wristband_l",
+     "Acc_wristband_r",
+     "Body",
+     "Boots_1",
+     "Boots_2",
+     "Boots_3",
+     "Boots_4",
+     "Kit",
+     "Sleeves_long",
+     "Socks_low"
+    ]
+   },
+   {
+    "name": "body_slim",
+    "group": "body",
+    "desc": "slimmer, leaner body (MPFB weight macro 0.5 -> 0.0)",
+    "meshes": [
+     "Acc_armband",
+     "Acc_gloves",
+     "Acc_undershirt_neck",
+     "Acc_wristband_l",
+     "Acc_wristband_r",
+     "Body",
+     "Boots_1",
+     "Boots_2",
+     "Boots_3",
+     "Boots_4",
+     "Kit",
+     "Sleeves_long",
+     "Socks_low"
+    ]
+   }
+  ],
+  "range": "0..1 (opposites are separate keys; set only one of each pair)",
+  "note": "Every mesh carries only the keys that move it (>0.2 mm); Body carries all. Set by name on every visible mesh and skip meshes where find_blend_shape_by_name() returns -1. Hair, eyes, teeth, headband and neck piece follow the head keys; Kit, boots, sleeves, socks, gloves, bands follow the body keys."
+ },
+ "hair": {
+  "hair_buzz": {
+   "label": "buzz cut (scalp shell)",
+   "texture": "hair_buzz.png",
+   "tris": 1020,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.92
+  },
+  "hair_short_fade": {
+   "label": "short textured top, skin fade",
+   "texture": "hair_short_fade.png",
+   "tris": 2400,
+   "scalp_mask": "scalp_fade",
+   "scalp_strength": 0.78
+  },
+  "hair_crop": {
+   "label": "textured crop with a short fringe",
+   "texture": "hair_crop.png",
+   "tris": 2400,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.6
+  },
+  "hair_side_part": {
+   "label": "classic side part",
+   "texture": "hair_side_part.png",
+   "tris": 1050,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.6
+  },
+  "hair_slick_back": {
+   "label": "slicked back",
+   "texture": "hair_slick_back.png",
+   "tris": 1644,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.55
+  },
+  "hair_quiff": {
+   "label": "quiff",
+   "texture": "hair_quiff.png",
+   "tris": 2399,
+   "scalp_mask": "scalp_fade",
+   "scalp_strength": 0.75
+  },
+  "hair_curly": {
+   "label": "short curly",
+   "texture": "hair_curly.png",
+   "tris": 2192,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.7
+  },
+  "hair_afro": {
+   "label": "afro",
+   "texture": "hair_afro.png",
+   "tris": 2192,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.7
+  },
+  "hair_man_bun": {
+   "label": "man bun",
+   "texture": "hair_man_bun.png",
+   "tris": 2450,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.55
+  },
+  "hair_long": {
+   "label": "long, to the neck",
+   "texture": "hair_long.png",
+   "tris": 2449,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.55
+  },
+  "hair_braids": {
+   "label": "cornrows (scalp shell)",
+   "texture": "hair_braids.png",
+   "tris": 1020,
+   "scalp_mask": "scalp_full",
+   "scalp_strength": 0.7
+  }
+ },
+ "hair_none": "bald = hide every hair_* mesh and use no scalp mask (or scalp_full at 0.15 for a shaved look)",
+ "masks": {
+  "format": "1024 grayscale PNG in the skin UV layout, white = hair; tint in the skin shader: albedo = mix(albedo, colour, mask * strength)",
+  "beards": {
+   "beard_stubble": "beard_stubble.png",
+   "beard_short": "beard_short.png",
+   "beard_full": "beard_full.png",
+   "beard_goatee": "beard_goatee.png",
+   "beard_mustache": "beard_mustache.png",
+   "beard_chinstrap": "beard_chinstrap.png"
+  },
+  "brows": {
+   "brows_thin": "brows_thin.png",
+   "brows_normal": "brows_normal.png",
+   "brows_thick": "brows_thick.png"
+  },
+  "scalp": {
+   "scalp_full": "scalp_full.png (whole hair-bearing scalp, grainy, soft hairline)",
+   "scalp_fade": "scalp_fade.png (same, fading out on the sides/back: skin fade)"
+  },
+  "iris": "iris_mask.png (white = iris inside EYE_RECT; recolour: albedo = mix(albedo, luminance(albedo) * eye_colour * ~3, mask))",
+  "note": "skin atlases contain no brows, beard or scalp hair; brows/beard/scalp come only from these masks"
+ },
+ "skin_tone": {
+  "textures": {
+   "light": "skin_light.jpg",
+   "mid": "skin_mid.jpg",
+   "dark": "skin_dark.jpg"
+  },
+  "param": "skin_tone 0..2: 0 light (European), 1 mid (Central Asian), 2 dark (African); blend the two neighbours"
+ },
+ "boots": {
+  "Boots_1": {
+   "desc": "classic laced boot (MakeHuman shoes02 last, shoes05 texture), 6 studs",
+   "tris": 1052,
+   "lowest_y_m": -0.0237
+  },
+  "Boots_2": {
+   "desc": "speed boot: slimmer, lower, pointed toe (shoes02 last reshaped, shoes06 texture), 6 studs",
+   "tris": 1052,
+   "lowest_y_m": -0.0237
+  },
+  "Boots_3": {
+   "desc": "classic leather boot, rounder toe (shoes01 last, shoes01 texture), 6 studs",
+   "tris": 1050,
+   "lowest_y_m": -0.0089
+  },
+  "Boots_4": {
+   "desc": "mid-cut sock boot with ankle collar (shoes03 last, shoes03 texture), 6 studs",
+   "tris": 1050,
+   "lowest_y_m": -0.0205
+  }
+ },
+ "accessories": {
+  "Acc_headband": {
+   "desc": "terry headband, low on the forehead, higher at the back",
+   "tris": 176
+  },
+  "Acc_wristband_l": {
+   "desc": "terry wristband, left forearm",
+   "tris": 96
+  },
+  "Acc_wristband_r": {
+   "desc": "terry wristband, right forearm",
+   "tris": 96
+  },
+  "Acc_gloves": {
+   "desc": "goalkeeper gloves (latex palm darker in the texture, wrist strap)",
+   "tris": 1100
+  },
+  "Acc_armband": {
+   "desc": "captain armband on the left upper arm, sits on the short sleeve; 'C' in the texture",
+   "tris": 112
+  },
+  "Acc_undershirt_neck": {
+   "desc": "base-layer neck showing above the crew neck",
+   "tris": 240
+  }
+ },
+ "gear": {
+  "Kit": "shirt (short sleeves) + shorts + high socks",
+  "Sleeves_long": "forearm extension over the short-sleeve cuff, COLOR_0 R=1",
+  "Socks_low": "scrunched low socks; when shown, hide the Kit's own socks (COLOR_0.b > 0.5): either discard in the kit shader or push them inside the leg in vertex(): if (hide_socks && COLOR.b > 0.5) VERTEX -= NORMAL * 0.012;",
+  "calves": "the Body keeps the calf skin under the high socks, so low socks show bare calves"
+ },
+ "textures": [
+  "acc.png",
+  "beard_chinstrap.png",
+  "beard_full.png",
+  "beard_goatee.png",
+  "beard_mustache.png",
+  "beard_short.png",
+  "beard_stubble.png",
+  "brows_normal.png",
+  "brows_thick.png",
+  "brows_thin.png",
+  "eye.png",
+  "hair_afro.png",
+  "hair_braids.png",
+  "hair_buzz.png",
+  "hair_crop.png",
+  "hair_curly.png",
+  "hair_long.png",
+  "hair_man_bun.png",
+  "hair_quiff.png",
+  "hair_short_fade.png",
+  "hair_side_part.png",
+  "hair_slick_back.png",
+  "iris_mask.png",
+  "kit.png",
+  "lash.png",
+  "scalp_fade.png",
+  "scalp_full.png",
+  "skin_dark.jpg",
+  "skin_light.jpg",
+  "skin_mid.jpg",
+  "skin_normal.jpg",
+  "teeth.png"
+ ],
+ "textures_note": "the GLB embeds skin_mid/skin_normal/kit/acc/hair_* for a working default import; Godot extracts those as base_*.png on import (generated, not part of the source set)",
+ "default": {
+  "skin_tone": 1.0,
+  "morphs": {},
+  "hair": "hair_crop",
+  "hair_color": "black",
+  "beard": null,
+  "beard_density": 0.0,
+  "brows": "brows_normal",
+  "brow_color": "black",
+  "eye_color": "dark_brown",
+  "boots": "Boots_1",
+  "sleeves": "short",
+  "socks": "high",
+  "acc": []
+ },
+ "colours": {
+  "hair": {
+   "black": [
+    0.028,
+    0.025,
+    0.022
+   ],
+   "dark_brown": [
+    0.055,
+    0.036,
+    0.024
+   ],
+   "brown": [
+    0.1,
+    0.065,
+    0.04
+   ],
+   "light_brown": [
+    0.22,
+    0.15,
+    0.09
+   ],
+   "blond": [
+    0.3,
+    0.21,
+    0.11
+   ],
+   "red": [
+    0.3,
+    0.1,
+    0.04
+   ],
+   "grey": [
+    0.3,
+    0.29,
+    0.28
+   ]
+  },
+  "eyes": {
+   "dark_brown": [
+    0.16,
+    0.09,
+    0.05
+   ],
+   "brown": [
+    0.3,
+    0.17,
+    0.08
+   ],
+   "hazel": [
+    0.36,
+    0.28,
+    0.12
+   ],
+   "green": [
+    0.2,
+    0.32,
+    0.18
+   ],
+   "blue": [
+    0.22,
+    0.36,
+    0.55
+   ],
+   "grey": [
+    0.4,
+    0.42,
+    0.44
+   ]
+  },
+  "note": "linear RGB suggestions used by the preview"
+ },
+ "caveats": [
+  "Morph keys are not mutually normalised: stacking many at 1.0 can exaggerate; the selfie mapper should keep the sum of a pair <= 1.",
+  "ethnic_* keys are optional extras (MPFB race macro, head only); they overlap with the detail keys.",
+  "Body keys are mesh-only (joint shift <= 1.3 mm), the rig is not changed.",
+  "Hair cards are MakeHuman assets: alpha-scissor thins at distance (alpha-to-coverage helps). Headband/hair do not compress each other.",
+  "Wristbands are sized for bare wrists (they clip into Sleeves_long); the armband sits on the short sleeve.",
+  "Boot soles and studs reach below y=0 (boots.*.lowest_y_m); animations were made for bare soles at y=0.",
+  "hair_mohawk was tried and dropped (MakeHuman cards did not give a convincing crest)."
+ ]
+}

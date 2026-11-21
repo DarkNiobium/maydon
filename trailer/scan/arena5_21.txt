@@ -1,0 +1,99 @@
+GOAL kind=arena5 seed=21 tick=3981 kick_tick=3964 team=0 scorer=3 shot=shot speed=31.8 dist=7.7 h=0.11 passes=1 assist=-1 score=2-0
+GOAL kind=arena5 seed=21 tick=5435 kick_tick=5419 team=0 scorer=3 shot=shot speed=31.6 dist=7.1 h=0.11 passes=1 assist=-1 score=3-0
+GOAL kind=arena5 seed=21 tick=7101 kick_tick=6695 team=0 scorer=4 shot=shot speed=28.4 dist=2.2 h=0.22 passes=2 assist=-1 score=4-0
+GOAL kind=arena5 seed=21 tick=9181 kick_tick=9174 team=1 scorer=9 shot=shot speed=30.4 dist=2.7 h=0.38 passes=2 assist=-1 score=4-1
+GOAL kind=arena5 seed=21 tick=10138 kick_tick=10122 team=0 scorer=4 shot=shot speed=30.0 dist=6.4 h=0.11 passes=3 assist=-1 score=5-1
+GOAL kind=arena5 seed=21 tick=11697 kick_tick=10462 team=1 scorer=9 shot=pass speed=6.2 dist=22.0 h=0.11 passes=0 assist=-1 score=5-2
+GOAL kind=arena5 seed=21 tick=13049 kick_tick=13037 team=0 scorer=4 shot=shot speed=30.3 dist=5.5 h=0.11 passes=3 assist=-1 score=6-2
+GOAL kind=arena5 seed=21 tick=15911 kick_tick=15895 team=0 scorer=2 shot=shot speed=30.5 dist=7.1 h=0.11 passes=1 assist=-1 score=7-2
+GOAL kind=arena5 seed=21 tick=18456 kick_tick=18449 team=1 scorer=9 shot=shot speed=28.5 dist=1.9 h=0.11 passes=2 assist=-1 score=7-3
+GOAL kind=arena5 seed=21 tick=21273 kick_tick=21255 team=0 scorer=4 shot=shot speed=32.3 dist=7.8 h=0.11 passes=5 assist=-1 score=8-3
+DONE seed=21 ticks=21635
+GOAL kind=arena5 seed=22 tick=894 kick_tick=886 team=1 scorer=9 shot=shot speed=29.5 dist=1.2 h=0.18 passes=1 assist=-1 score=0-1
+GOAL kind=arena5 seed=22 tick=2133 kick_tick=2130 team=0 scorer=3 shot=shot speed=29.0 dist=0.9 h=0.17 passes=5 assist=-1 score=1-1
+GOAL kind=arena5 seed=22 tick=5379 kick_tick=5370 team=0 scorer=4 shot=shot speed=28.9 dist=2.8 h=0.22 passes=1 assist=-1 score=3-2
+GOAL kind=arena5 seed=22 tick=8933 kick_tick=8921 team=0 scorer=4 shot=shot speed=29.7 dist=4.0 h=0.16 passes=3 assist=-1 score=4-2
+GOAL kind=arena5 seed=22 tick=11881 kick_tick=11862 team=1 scorer=8 shot=shot speed=30.7 dist=8.0 h=0.11 passes=2 assist=-1 score=4-3
+GOAL kind=arena5 seed=22 tick=16571 kick_tick=16567 team=0 scorer=3 shot=shot speed=28.4 dist=2.6 h=0.11 passes=5 assist=-1 score=6-4
+GOAL kind=arena5 seed=22 tick=19104 kick_tick=19088 team=0 scorer=4 shot=shot speed=31.1 dist=8.0 h=0.11 passes=5 assist=3 score=8-4
+DONE seed=22 ticks=22283
+GOAL kind=arena5 seed=23 tick=842 kick_tick=824 team=1 scorer=8 shot=shot speed=31.8 dist=8.1 h=0.56 passes=6 assist=6 score=0-1
+GOAL kind=arena5 seed=23 tick=2069 kick_tick=2064 team=0 scorer=4 shot=shot speed=28.8 dist=1.9 h=0.11 passes=3 assist=-1 score=1-1
+GOAL kind=arena5 seed=23 tick=4293 kick_tick=4145 team=1 scorer=9 shot=shot speed=32.4 dist=9.1 h=0.11 passes=4 assist=-1 score=1-2
+GOAL kind=arena5 seed=23 tick=7064 kick_tick=7052 team=0 scorer=4 shot=shot speed=30.1 dist=7.0 h=0.18 passes=4 assist=2 score=3-2
+GOAL kind=arena5 seed=23 tick=7832 kick_tick=7823 team=1 scorer=8 shot=shot speed=28.7 dist=3.0 h=0.26 passes=2 assist=-1 score=3-3
+GOAL kind=arena5 seed=23 tick=15116 kick_tick=13515 team=0 scorer=4 shot=shot speed=28.7 dist=1.9 h=0.11 passes=2 assist=-1 score=4-4
+GOAL kind=arena5 seed=23 tick=19407 kick_tick=19391 team=0 scorer=4 shot=shot speed=32.1 dist=7.3 h=0.11 passes=3 assist=-1 score=6-4
+GOAL kind=arena5 seed=23 tick=21034 kick_tick=21026 team=0 scorer=4 shot=shot speed=30.9 dist=4.1 h=0.18 passes=4 assist=-1 score=7-4
+DONE seed=23 ticks=21635
+GOAL kind=arena5 seed=24 tick=2031 kick_tick=2023 team=0 scorer=4 shot=shot speed=28.5 dist=2.3 h=0.11 passes=5 assist=-1 score=1-1
+GOAL kind=arena5 seed=24 tick=6012 kick_tick=6002 team=0 scorer=4 shot=shot speed=29.4 dist=3.9 h=0.31 passes=4 assist=-1 score=2-1
+GOAL kind=arena5 seed=24 tick=7677 kick_tick=7671 team=0 scorer=4 shot=shot speed=28.5 dist=0.8 h=0.20 passes=0 assist=-1 score=3-1
+GOAL kind=arena5 seed=24 tick=10142 kick_tick=10126 team=0 scorer=2 shot=shot speed=31.5 dist=7.0 h=0.11 passes=5 assist=-1 score=4-1
+GOAL kind=arena5 seed=24 tick=11467 kick_tick=11457 team=1 scorer=9 shot=shot speed=29.3 dist=4.4 h=0.11 passes=4 assist=-1 score=4-2
+GOAL kind=arena5 seed=24 tick=14027 kick_tick=14019 team=1 scorer=9 shot=shot speed=28.7 dist=2.0 h=0.14 passes=2 assist=-1 score=4-3
+GOAL kind=arena5 seed=24 tick=15180 kick_tick=14351 team=0 scorer=4 shot=pass speed=6.1 dist=22.0 h=0.11 passes=3 assist=2 score=5-3
+GOAL kind=arena5 seed=24 tick=15990 kick_tick=15969 team=1 scorer=8 shot=shot speed=32.3 dist=9.4 h=0.11 passes=3 assist=-1 score=5-4
+DONE seed=24 ticks=21311
+GOAL kind=arena5 seed=25 tick=879 kick_tick=867 team=0 scorer=4 shot=shot speed=28.9 dist=3.8 h=0.11 passes=3 assist=-1 score=1-0
+GOAL kind=arena5 seed=25 tick=2846 kick_tick=2832 team=0 scorer=3 shot=shot speed=31.5 dist=6.9 h=0.11 passes=6 assist=-1 score=2-0
+GOAL kind=arena5 seed=25 tick=5630 kick_tick=5612 team=0 scorer=4 shot=shot speed=31.9 dist=8.2 h=0.11 passes=2 assist=2 score=3-0
+GOAL kind=arena5 seed=25 tick=7627 kick_tick=7612 team=0 scorer=3 shot=shot speed=31.5 dist=6.1 h=0.11 passes=3 assist=0 score=4-0
+GOAL kind=arena5 seed=25 tick=10977 kick_tick=10952 team=0 scorer=4 shot=shot speed=33.7 dist=10.4 h=0.11 passes=4 assist=1 score=5-0
+GOAL kind=arena5 seed=25 tick=12046 kick_tick=12032 team=0 scorer=3 shot=shot speed=32.0 dist=7.0 h=0.11 passes=0 assist=-1 score=6-0
+GOAL kind=arena5 seed=25 tick=15263 kick_tick=15213 team=0 scorer=3 shot=shot speed=35.3 dist=13.7 h=0.11 passes=2 assist=2 score=7-0
+GOAL kind=arena5 seed=25 tick=16404 kick_tick=16394 team=0 scorer=4 shot=shot speed=29.5 dist=3.2 h=0.11 passes=1 assist=-1 score=8-0
+GOAL kind=arena5 seed=25 tick=18637 kick_tick=18629 team=1 scorer=8 shot=shot speed=28.2 dist=2.8 h=0.11 passes=2 assist=-1 score=8-1
+GOAL kind=arena5 seed=25 tick=19464 kick_tick=19458 team=1 scorer=9 shot=shot speed=27.8 dist=1.3 h=0.11 passes=1 assist=-1 score=8-2
+DONE seed=25 ticks=21311
+GOAL kind=arena5 seed=26 tick=689 kick_tick=670 team=1 scorer=8 shot=shot speed=32.7 dist=9.4 h=0.11 passes=1 assist=-1 score=0-1
+GOAL kind=arena5 seed=26 tick=1673 kick_tick=1666 team=0 scorer=3 shot=shot speed=28.3 dist=1.8 h=0.11 passes=2 assist=-1 score=1-1
+GOAL kind=arena5 seed=26 tick=4432 kick_tick=4415 team=1 scorer=8 shot=shot speed=31.7 dist=8.4 h=0.11 passes=4 assist=-1 score=1-3
+GOAL kind=arena5 seed=26 tick=6540 kick_tick=6531 team=0 scorer=3 shot=shot speed=28.3 dist=3.0 h=0.28 passes=1 assist=-1 score=2-3
+GOAL kind=arena5 seed=26 tick=8025 kick_tick=8015 team=1 scorer=9 shot=shot speed=29.0 dist=3.4 h=0.15 passes=4 assist=-1 score=2-4
+GOAL kind=arena5 seed=26 tick=10093 kick_tick=10069 team=1 scorer=9 shot=shot speed=28.7 dist=2.8 h=0.11 passes=1 assist=-1 score=2-5
+GOAL kind=arena5 seed=26 tick=12900 kick_tick=12881 team=0 scorer=2 shot=shot speed=31.0 dist=7.0 h=0.11 passes=2 assist=-1 score=3-5
+GOAL kind=arena5 seed=26 tick=14247 kick_tick=14227 team=1 scorer=8 shot=shot speed=31.9 dist=8.3 h=0.11 passes=2 assist=-1 score=3-6
+GOAL kind=arena5 seed=26 tick=17271 kick_tick=17255 team=0 scorer=4 shot=shot speed=31.5 dist=7.4 h=0.11 passes=1 assist=-1 score=4-6
+DONE seed=26 ticks=21766
+GOAL kind=arena5 seed=27 tick=1557 kick_tick=71 team=0 scorer=4 shot=pass speed=6.3 dist=22.0 h=0.11 passes=0 assist=-1 score=1-0
+GOAL kind=arena5 seed=27 tick=3036 kick_tick=3016 team=0 scorer=4 shot=shot speed=33.3 dist=9.7 h=0.11 passes=2 assist=-1 score=2-0
+GOAL kind=arena5 seed=27 tick=3910 kick_tick=3900 team=1 scorer=9 shot=shot speed=29.0 dist=3.9 h=0.14 passes=2 assist=-1 score=2-1
+GOAL kind=arena5 seed=27 tick=4908 kick_tick=4903 team=0 scorer=3 shot=shot speed=28.6 dist=1.3 h=0.11 passes=2 assist=-1 score=3-1
+GOAL kind=arena5 seed=27 tick=8004 kick_tick=7995 team=0 scorer=3 shot=shot speed=29.4 dist=3.9 h=0.11 passes=0 assist=-1 score=4-1
+GOAL kind=arena5 seed=27 tick=8885 kick_tick=8867 team=1 scorer=9 shot=shot speed=31.4 dist=8.1 h=0.11 passes=4 assist=-1 score=4-2
+GOAL kind=arena5 seed=27 tick=14800 kick_tick=14795 team=0 scorer=3 shot=shot speed=28.6 dist=1.8 h=0.11 passes=1 assist=-1 score=5-4
+GOAL kind=arena5 seed=27 tick=18355 kick_tick=18338 team=0 scorer=4 shot=shot speed=32.2 dist=7.0 h=0.11 passes=1 assist=2 score=6-4
+GOAL kind=arena5 seed=27 tick=19494 kick_tick=19474 team=0 scorer=4 shot=shot speed=32.0 dist=7.7 h=0.11 passes=0 assist=-1 score=7-4
+GOAL kind=arena5 seed=27 tick=20883 kick_tick=20868 team=0 scorer=4 shot=shot speed=32.1 dist=6.6 h=0.11 passes=1 assist=-1 score=8-4
+GOAL kind=arena5 seed=27 tick=21949 kick_tick=21939 team=0 scorer=3 shot=shot speed=28.8 dist=2.6 h=0.23 passes=1 assist=-1 score=9-4
+DONE seed=27 ticks=22283
+GOAL kind=arena5 seed=28 tick=3087 kick_tick=3070 team=0 scorer=3 shot=shot speed=31.1 dist=8.3 h=0.11 passes=1 assist=-1 score=2-0
+GOAL kind=arena5 seed=28 tick=4284 kick_tick=4273 team=0 scorer=3 shot=shot speed=30.7 dist=5.9 h=0.11 passes=2 assist=-1 score=3-0
+GOAL kind=arena5 seed=28 tick=9340 kick_tick=9321 team=0 scorer=3 shot=shot speed=31.4 dist=7.6 h=0.11 passes=1 assist=-1 score=4-2
+GOAL kind=arena5 seed=28 tick=10622 kick_tick=10610 team=1 scorer=8 shot=shot speed=30.9 dist=6.7 h=0.11 passes=2 assist=9 score=5-3
+GOAL kind=arena5 seed=28 tick=11552 kick_tick=11536 team=0 scorer=4 shot=shot speed=32.1 dist=6.8 h=0.11 passes=2 assist=-1 score=6-3
+GOAL kind=arena5 seed=28 tick=14462 kick_tick=14450 team=0 scorer=3 shot=shot speed=30.4 dist=6.7 h=0.11 passes=5 assist=-1 score=7-3
+GOAL kind=arena5 seed=28 tick=16861 kick_tick=16849 team=1 scorer=9 shot=shot speed=30.8 dist=5.7 h=0.11 passes=1 assist=-1 score=7-4
+GOAL kind=arena5 seed=28 tick=20302 kick_tick=20288 team=0 scorer=4 shot=shot speed=32.0 dist=6.6 h=0.19 passes=3 assist=-1 score=8-4
+GOAL kind=arena5 seed=28 tick=21692 kick_tick=21677 team=0 scorer=2 shot=shot speed=29.4 dist=5.0 h=0.20 passes=2 assist=-1 score=9-4
+DONE seed=28 ticks=22283
+GOAL kind=arena5 seed=29 tick=5732 kick_tick=5716 team=0 scorer=4 shot=shot speed=31.8 dist=6.8 h=0.11 passes=3 assist=-1 score=2-0
+GOAL kind=arena5 seed=29 tick=6945 kick_tick=6932 team=0 scorer=4 shot=shot speed=31.7 dist=5.9 h=0.11 passes=1 assist=-1 score=3-0
+GOAL kind=arena5 seed=29 tick=7758 kick_tick=7741 team=0 scorer=4 shot=shot speed=31.5 dist=6.6 h=0.11 passes=0 assist=-1 score=4-0
+GOAL kind=arena5 seed=29 tick=8509 kick_tick=8492 team=0 scorer=4 shot=shot speed=32.5 dist=8.3 h=0.11 passes=3 assist=-1 score=5-0
+GOAL kind=arena5 seed=29 tick=10433 kick_tick=10427 team=1 scorer=8 shot=shot speed=27.6 dist=1.6 h=0.16 passes=2 assist=-1 score=5-1
+GOAL kind=arena5 seed=29 tick=12906 kick_tick=12896 team=1 scorer=9 shot=shot speed=29.7 dist=3.4 h=0.11 passes=1 assist=-1 score=5-2
+GOAL kind=arena5 seed=29 tick=17691 kick_tick=17675 team=0 scorer=4 shot=shot speed=31.6 dist=6.5 h=0.11 passes=2 assist=-1 score=8-2
+GOAL kind=arena5 seed=29 tick=21469 kick_tick=21460 team=0 scorer=4 shot=shot speed=28.9 dist=2.8 h=0.11 passes=1 assist=-1 score=9-3
+DONE seed=29 ticks=21959
+GOAL kind=arena5 seed=30 tick=1304 kick_tick=1286 team=0 scorer=3 shot=shot speed=32.0 dist=7.5 h=0.11 passes=1 assist=-1 score=1-0
+GOAL kind=arena5 seed=30 tick=2263 kick_tick=2249 team=1 scorer=9 shot=shot speed=31.6 dist=6.9 h=0.11 passes=3 assist=-1 score=1-1
+GOAL kind=arena5 seed=30 tick=6827 kick_tick=6817 team=1 scorer=6 shot=shot speed=28.3 dist=2.7 h=0.12 passes=1 assist=-1 score=2-2
+GOAL kind=arena5 seed=30 tick=9476 kick_tick=9459 team=0 scorer=4 shot=shot speed=32.0 dist=7.2 h=0.11 passes=3 assist=-1 score=3-2
+GOAL kind=arena5 seed=30 tick=10780 kick_tick=10770 team=0 scorer=4 shot=shot speed=31.5 dist=4.2 h=0.38 passes=2 assist=-1 score=4-2
+GOAL kind=arena5 seed=30 tick=11838 kick_tick=11827 team=0 scorer=4 shot=shot speed=30.6 dist=5.6 h=0.11 passes=0 assist=-1 score=5-2
+GOAL kind=arena5 seed=30 tick=14590 kick_tick=14572 team=1 scorer=8 shot=shot speed=31.8 dist=7.3 h=0.11 passes=3 assist=-1 score=5-3
+GOAL kind=arena5 seed=30 tick=16331 kick_tick=16310 team=1 scorer=9 shot=shot speed=33.0 dist=9.6 h=0.11 passes=2 assist=-1 score=5-4
+GOAL kind=arena5 seed=30 tick=19512 kick_tick=19499 team=0 scorer=3 shot=shot speed=29.5 dist=4.9 h=0.11 passes=2 assist=-1 score=6-5
+DONE seed=30 ticks=21635

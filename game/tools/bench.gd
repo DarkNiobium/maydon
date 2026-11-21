@@ -7,6 +7,11 @@ func _ready() -> void:
 	var n := int(args[1]) if args.size() > 1 else 4
 	var dur := float(args[2]) if args.size() > 2 else 300.0
 	var tot := {}
+	for a in args:
+		if a.contains("="):
+			var kv := a.split("=")
+			TeamAI.tune[kv[0]] = float(kv[1])
+	print("tune: ", TeamAI.tune)
 	var t0 := Time.get_ticks_msec()
 	var ticks := 0
 	for i in n:
@@ -47,6 +52,4 @@ func _ready() -> void:
 		print("  pass completion: %.1f%%" % (100.0 * tot["passes_ok"] / tot["passes"]))
 	print("  sim speed: %.3f ms/tick (%d ticks)" % [float(ms) / ticks, ticks])
 	print("decisions: ", TeamAI.hist)
-	for l in TeamAI.dbg_samples:
-		print("  ", l)
 	get_tree().quit()

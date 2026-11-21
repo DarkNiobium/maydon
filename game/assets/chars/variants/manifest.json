@@ -1,0 +1,194 @@
+{
+ "p01": {
+  "role": "CM",
+  "age": 24,
+  "height_m": 1.779,
+  "look": "Central Asian",
+  "hair": "fade",
+  "beard": "light stubble",
+  "tris": 9943,
+  "tris_per_material": {
+   "skin": 4577,
+   "hair": 1699,
+   "kit": 3667
+  },
+  "boot_sole_below_ground_m": 0.017,
+  "file": "variants/p01.glb"
+ },
+ "p02": {
+  "role": "RW",
+  "age": 19,
+  "height_m": 1.716,
+  "look": "Central Asian",
+  "hair": "short, tapered sides",
+  "beard": "-",
+  "tris": 9944,
+  "tris_per_material": {
+   "skin": 4398,
+   "hair": 1999,
+   "kit": 3547
+  },
+  "boot_sole_below_ground_m": 0.016,
+  "file": "variants/p02.glb"
+ },
+ "p03": {
+  "role": "CB",
+  "age": 29,
+  "height_m": 1.879,
+  "look": "Central Asian",
+  "hair": "buzz cut",
+  "beard": "beard",
+  "tris": 9944,
+  "tris_per_material": {
+   "skin": 4697,
+   "hair": 1499,
+   "kit": 3748
+  },
+  "boot_sole_below_ground_m": 0.018,
+  "file": "variants/p03.glb"
+ },
+ "p04": {
+  "role": "LW",
+  "age": 22,
+  "height_m": 1.739,
+  "look": "Central Asian",
+  "hair": "slicked short",
+  "beard": "-",
+  "tris": 9943,
+  "tris_per_material": {
+   "skin": 4968,
+   "hair": 1050,
+   "kit": 3925
+  },
+  "boot_sole_below_ground_m": 0.017,
+  "file": "variants/p04.glb"
+ },
+ "p05": {
+  "role": "LB",
+  "age": 31,
+  "height_m": 1.824,
+  "look": "Central Asian",
+  "hair": "textured / voluminous",
+  "beard": "stubble",
+  "tris": 9939,
+  "tris_per_material": {
+   "skin": 4394,
+   "hair": 1998,
+   "kit": 3547
+  },
+  "boot_sole_below_ground_m": 0.018,
+  "file": "variants/p05.glb"
+ },
+ "p06": {
+  "role": "AM",
+  "age": 26,
+  "height_m": 1.793,
+  "look": "Central Asian",
+  "hair": "longer, slicked back",
+  "beard": "stubble",
+  "tris": 9939,
+  "tris_per_material": {
+   "skin": 4964,
+   "hair": 1050,
+   "kit": 3925
+  },
+  "boot_sole_below_ground_m": 0.017,
+  "file": "variants/p06.glb"
+ },
+ "p07": {
+  "role": "ST",
+  "age": 20,
+  "height_m": 1.748,
+  "look": "Central Asian",
+  "hair": "fade",
+  "beard": "-",
+  "tris": 9940,
+  "tris_per_material": {
+   "skin": 4575,
+   "hair": 1699,
+   "kit": 3666
+  },
+  "boot_sole_below_ground_m": 0.017,
+  "file": "variants/p07.glb"
+ },
+ "p08": {
+  "role": "GK",
+  "age": 34,
+  "height_m": 1.91,
+  "look": "Central Asian",
+  "hair": "slicked short",
+  "beard": "goatee",
+  "tris": 9941,
+  "tris_per_material": {
+   "skin": 4966,
+   "hair": 1050,
+   "kit": 3925
+  },
+  "boot_sole_below_ground_m": 0.018,
+  "file": "variants/p08.glb"
+ },
+ "p09": {
+  "role": "CB",
+  "age": 27,
+  "height_m": 1.862,
+  "look": "European",
+  "hair": "short",
+  "beard": "light stubble",
+  "tris": 9940,
+  "tris_per_material": {
+   "skin": 4397,
+   "hair": 1999,
+   "kit": 3544
+  },
+  "boot_sole_below_ground_m": 0.018,
+  "file": "variants/p09.glb"
+ },
+ "p10": {
+  "role": "ST",
+  "age": 23,
+  "height_m": 1.85,
+  "look": "African",
+  "hair": "short afro / curly",
+  "beard": "light stubble",
+  "tris": 9945,
+  "tris_per_material": {
+   "skin": 4339,
+   "hair": 2100,
+   "kit": 3506
+  },
+  "boot_sole_below_ground_m": 0.018,
+  "file": "variants/p10.glb"
+ },
+ "p11": {
+  "role": "DM",
+  "age": 28,
+  "height_m": 1.792,
+  "look": "Middle-Eastern",
+  "hair": "slicked short",
+  "beard": "beard",
+  "tris": 9947,
+  "tris_per_material": {
+   "skin": 4972,
+   "hair": 1050,
+   "kit": 3925
+  },
+  "boot_sole_below_ground_m": 0.017,
+  "file": "variants/p11.glb"
+ },
+ "p12": {
+  "role": "CM",
+  "age": 18,
+  "height_m": 1.698,
+  "look": "Central Asian",
+  "hair": "mushroom fringe",
+  "beard": "-",
+  "tris": 9940,
+  "tris_per_material": {
+   "skin": 4394,
+   "hair": 2000,
+   "kit": 3546
+  },
+  "boot_sole_below_ground_m": 0.016,
+  "file": "variants/p12.glb"
+ }
+}

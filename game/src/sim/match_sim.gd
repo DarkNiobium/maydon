@@ -31,13 +31,16 @@ var last_touch_team := -1
 var last_touch_kind := ""
 var poss_team := -1
 var last_pass := {}
+var _later: Array = []
 var last_shot := {}
 var offside_marks: Array = []
 var restart := {}
 var goals: Array = []
 var events: Array = []
 var ball_pred := PackedVector3Array()
-var pred_dt := 1.0 / 25.0
+var pred_dt := 1.0 / 20.0
+var icpt_cache := {}
+var icpt_tick := -1
 var pred_tick := -100
 var kickoff_team := 0
 var overtime := 0.0
@@ -234,14 +237,14 @@ func half_len() -> float:
 
 ## Shared ball prediction for AI (refreshed at most every 3 ticks).
 func prediction() -> PackedVector3Array:
-	if tick - pred_tick >= 3:
+	if tick - pred_tick >= 4:
 		pred_tick = tick
 		if ball.in_hands >= 0:
 			ball_pred = PackedVector3Array()
-			ball_pred.resize(75)
+			ball_pred.resize(60)
 			ball_pred.fill(ball.pos)
 		else:
-			ball_pred = ball.predict(75, pred_dt)
+			ball_pred = ball.predict(60, pred_dt)
 	return ball_pred
 
 
@@ -249,9 +252,18 @@ func prediction() -> PackedVector3Array:
 # Main step
 # ---------------------------------------------------------------------------
 
+## Queue an event from outside the step (controllers run before step(), which
+## clears the event list) — it is delivered with the next step's events.
+func emit_later(e: Dictionary) -> void:
+	_later.append(e)
+
+
 func step() -> void:
 	tick += 1
 	events.clear()
+	if not _later.is_empty():
+		events.append_array(_later)
+		_later.clear()
 	phase_t += DT
 	match phase:
 		Phase.KICKOFF, Phase.RESTART:
@@ -335,9 +347,22 @@ func _idle_step(celebrate: bool) -> void:
 	ball.events.clear()
 
 
+static var prof := {}
+static var prof_on := false
+
+
+func _pt(k: String, t0: int) -> int:
+	var t1 := Time.get_ticks_usec()
+	prof[k] = prof.get(k, 0) + (t1 - t0)
+	return t1
+
+
 func _play_step() -> void:
+	var t0 := Time.get_ticks_usec() if prof_on else 0
 	for t in 2:
 		ai[t].think(DT)
+	if prof_on:
+		t0 = _pt("ai", t0)
 	for p in players:
 		if p.sent_off:
 			continue
@@ -348,9 +373,15 @@ func _play_step() -> void:
 		if p.action == A.NONE or p.action in [A.TRAP, A.CELEBRATE]:
 			p.move_step(DT, p.id == owner)
 		_zone_stat(p)
+	if prof_on:
+		t0 = _pt("players", t0)
 	_separate_players()
+	if prof_on:
+		t0 = _pt("separate", t0)
 	_ball_control()
 	_gk_hands()
+	if prof_on:
+		t0 = _pt("control", t0)
 	if ball.in_hands >= 0:
 		var gk: Footballer = players[ball.in_hands]
 		ball.pos = gk.pos + gk.face * 0.3 + Vector3(0, 1.05, 0)
@@ -388,7 +419,7 @@ func _try_start_action(p: Footballer) -> void:
 	var kick_req := req in [Cmd.Act.PASS, Cmd.Act.THROUGH, Cmd.Act.LOB, Cmd.Act.CROSS,
 		Cmd.Act.SHOT, Cmd.Act.CHIP, Cmd.Act.CLEAR]
 	if p.busy():
-		if p.action == A.TRAP and p.act_t > 0.1 and p.stun <= 0.0:
+		if p.action == A.TRAP and (p.act_t > 0.1 or owner == p.id) and p.stun <= 0.0:
 			p.end_action()
 		elif kick_req and p.stun <= 0.0:
 			_queue_first_time(p, c)
@@ -477,27 +508,37 @@ func _start_kick(p: Footballer, req: int, data: Dictionary) -> void:
 	var dur := 0.45
 	var bh := ball.pos.y
 	match req:
+		# wind-up = time to contact; a real leg swing needs ~0.12 s even for a quick pass
 		Cmd.Act.PASS, Cmd.Act.THROUGH:
 			kind = A.PASS
-			wind = 0.12 + 0.1 * pw
-			dur = wind + 0.24
+			wind = 0.12 + 0.06 * pw
+			dur = wind + 0.2
 		Cmd.Act.LOB, Cmd.Act.CROSS, Cmd.Act.CLEAR:
 			kind = A.LOB
-			wind = 0.2 + 0.05 * pw
-			dur = wind + 0.3
+			wind = 0.16 + 0.04 * pw
+			dur = wind + 0.26
 		Cmd.Act.SHOT:
 			kind = A.SHOT
-			wind = 0.18 + 0.12 * pw
-			dur = wind + 0.34
+			wind = 0.16 + 0.1 * pw
+			dur = wind + 0.3
 		Cmd.Act.CHIP:
 			kind = A.CHIP
-			wind = 0.2
-			dur = wind + 0.3
+			wind = 0.18
+			dur = wind + 0.26
 	if bh > 0.42 and kind != A.LOB:
 		kind = A.VOLLEY if req == Cmd.Act.SHOT else kind
 	if owner != p.id and ball.ground_speed() > 3.0:
 		wind = minf(wind, 0.12)   # first-time / moving ball: quick strike
 	data["kind_req"] = req
+	# which foot: the stronger one unless the ball sits clearly on the other side
+	var sf := p.strong_foot()
+	var lat_b := (ball.pos - p.pos).dot(p.face.cross(Vector3.UP))   # > 0: ball on the player's right
+	var kf := sf
+	if sf == 1 and lat_b < -0.14:
+		kf = -1
+	elif sf == -1 and lat_b > 0.14:
+		kf = 1
+	data["foot"] = kf
 	p.start_action(kind, dur, wind, data)
 	emit({"t": "act", "id": p.id, "k": "kick", "kind": kind, "wind": wind})
 
@@ -568,7 +609,7 @@ func _update_action(p: Footballer) -> void:
 			p.vel *= 0.9
 			p.pos += p.vel * DT
 			if p.act_t >= p.act_dur:
-				p.start_action(A.GETUP, 0.75, 0.0)
+				p.start_action(A.GETUP, 1.0, 0.0)
 				return
 		A.GETUP:
 			p.vel = Vector3.ZERO
@@ -608,7 +649,9 @@ func _approach_ball(p: Footballer) -> void:
 	if kdir.length() < 0.1:
 		kdir = p.face
 	kdir = kdir.normalized()
-	var stand := bp - kdir * 0.36 + kdir.cross(Vector3.UP) * 0.12
+	# kicking foot swings under its hip: the body stands beside the ball, on the planted foot's side
+	var kf := float(p.act_data.get("foot", 1))
+	var stand := bp - kdir * 0.36 - kdir.cross(Vector3.UP) * 0.11 * kf
 	var to := stand - p.pos
 	to.y = 0.0
 	var need := to / remain
@@ -623,6 +666,8 @@ func _approach_ball(p: Footballer) -> void:
 
 func _kick_error_scale(p: Footballer, kdir: Vector3) -> float:
 	var s := 1.0
+	if int(p.act_data.get("foot", p.strong_foot())) != p.strong_foot():
+		s += 0.25              # weaker foot
 	var body := p.face.dot(kdir)
 	if body < 0.6:
 		s += (0.6 - body) * 1.4
@@ -644,7 +689,7 @@ func _kick_contact(p: Footballer) -> void:
 	var foot := p.pos + p.face * 0.36
 	var d := Vector2(ball.pos.x - foot.x, ball.pos.z - foot.z).length()
 	var ylim := 1.35 if p.action == A.VOLLEY else 0.85
-	if d > 0.78 or ball.pos.y > ylim or ball.in_hands >= 0 or (owner >= 0 and owner != p.id
+	if d > 0.9 or ball.pos.y > ylim or ball.in_hands >= 0 or (owner >= 0 and owner != p.id
 			and players[owner].team != p.team and _protected(players[owner])):
 		emit({"t": "whiff", "id": p.id})
 		return
@@ -692,7 +737,7 @@ func _kick_contact(p: Footballer) -> void:
 			v *= 1.0 + rng.randfn(0.0, 0.045 * err)
 			kind = "cross" if req == Cmd.Act.CROSS else ("clear" if req == Cmd.Act.CLEAR else "lob")
 		A.SHOT, A.VOLLEY:
-			var spd := lerpf(15.0, 31.0 + p.shot_attr * 4.0, pw)
+			var spd := lerpf(16.0, 33.0 + p.shot_attr * 4.0, pw)
 			if p.action == A.VOLLEY:
 				spd *= 1.05
 			w = data.get("spin", Vector3.ZERO)
@@ -1037,7 +1082,8 @@ func _touch(p: Footballer, v: Vector3, w: Vector3, kind: String) -> void:
 	p.stats["touches"] += 1
 	if kind in ["pass", "through", "lob", "cross", "gk_throw", "gk_kick", "throw_in", "clear"]:
 		owner = -1
-		p.stats["passes"] += 1
+		if kind != "clear":
+			p.stats["passes"] += 1
 		var recv := -1
 		if p.act_data.has("recv"):
 			recv = p.act_data["recv"]
@@ -1113,6 +1159,7 @@ func _ball_control() -> void:
 		var dist := Vector2(ball.pos.x - o.pos.x, ball.pos.z - o.pos.z).length()
 		var too_high := ball.pos.y > 1.0 and o.action != A.TRAP
 		if o.stun > 0.0 or o.on_floor() or dist > 2.9 or too_high or o.sent_off:
+			o.touch_at = -1.0
 			owner = -1
 		elif not o.busy() or o.action == A.TRAP:
 			_dribble(o)
@@ -1217,6 +1264,9 @@ func _collect(p: Footballer) -> void:
 	emit({"t": "trap", "id": p.id, "h": "foot", "q": q})
 
 
+const TOUCH_LEAD := 0.12      # s: dribble touches are planned at least this far ahead (view reaches the foot)
+
+
 func _dribble(o: Footballer) -> void:
 	var sp := o.vel.length()
 	var mv := o.cmd.move
@@ -1228,42 +1278,75 @@ func _dribble(o: Footballer) -> void:
 	var rel := ball.pos - o.pos
 	rel.y = 0.0
 	o.touch_cd -= DT
+	var due := o.touch_at >= 0.0 and clock + DT * 0.5 >= o.touch_at
 	var pressured: bool = ai[o.team].nearest_opponent_dist(o.pos) < 2.6
 	if (sp < 2.4 or (pressured and sp < 5.2)) and not o.cmd.sprint:
-		# close control: ball kept just in front of the stronger foot
-		var tgt := o.pos + o.face * 0.44 + o.face.cross(Vector3.UP) * 0.08 + o.vel * 0.08
+		# close control: ball kept just in front of the foot that touches it next; a touch with
+		# every step (planned on the gait so the view puts the foot on the ball) re-centres it
+		var side := float(o.touch_foot) if o.touch_at >= 0.0 else 1.0
+		var tgt := o.pos + o.face * 0.44 + o.face.cross(Vector3.UP) * 0.08 * side + o.vel * 0.08
 		var corr := tgt - ball.pos
 		corr.y = 0.0
-		var nv := Vector3(o.vel.x, 0, o.vel.z) + corr * 10.0
+		var nv := Vector3(o.vel.x, 0, o.vel.z) + corr * (10.0 if sp < 0.4 else 6.0)
+		if sp > 0.4:
+			if due:
+				o.touch_at = -1.0
+				o.touch_cd = 0.16
+				nv = Vector3(o.vel.x, 0, o.vel.z) + corr * 14.0
+				emit({"t": "dribble", "id": o.id, "soft": true, "foot": o.touch_foot})
+			elif o.touch_at < 0.0 and o.touch_cd <= 0.0:
+				var win := o.next_touch_window(TOUCH_LEAD)
+				o.touch_at = clock + float(win[0])
+				o.touch_foot = int(win[1])
+		else:
+			o.touch_at = -1.0
 		if nv.length() > 9.0:
 			nv = nv.normalized() * 9.0
 		if ball.pos.y > BallSim.R + 0.05:
 			nv.y = ball.vel.y
 		ball.vel = nv
 		ball.spin = BallSim.rolling_spin(ball.vel)
-		if o.touch_cd <= 0.0 and sp > 0.4:
-			o.touch_cd = 0.42
-			emit({"t": "dribble", "id": o.id, "soft": true})
 		return
 	var ahead := rel.dot(dir)
 	var lat := (rel - dir * ahead).length()
 	var bdir := Vector3(ball.vel.x, 0, ball.vel.z)
 	var misdir := bdir.length() > 0.5 and bdir.normalized().dot(dir) < 0.9
-	var need := ahead < 0.5 + 0.045 * sp or lat > 0.45 or misdir
-	var foot_ok := absf(fmod(o.gait * 2.0, 1.0) - 0.15) < 0.2 or ahead < 0.25 or misdir
-	if need and foot_ok and o.touch_cd <= 0.0 and rel.length() < 1.25 and ball.pos.y < 0.45:
-		var push := 0.55 + 0.11 * sp - 0.25 * o.dribble_attr
-		if o.cmd.sprint:
-			push += 0.75
-		var v := dir * (maxf(sp, 2.0) + push)
-		# correct lateral offset so the ball ends up in the running line
-		var lat_v := (o.pos + dir * maxf(ahead, 0.3)) - ball.pos
-		lat_v.y = 0.0
-		v += (lat_v - dir * lat_v.dot(dir)) * 3.0
-		ball.kick(Vector3(v.x, 0.0, v.z), BallSim.rolling_spin(v))
-		o.touch_cd = 0.24 + (0.12 if o.cmd.sprint else 0.0)
-		o.stats["touches"] += 1
-		emit({"t": "dribble", "id": o.id, "soft": false, "s": v.length()})
+	if o.touch_at >= 0.0:
+		# a push is planned for the next foot window
+		if due:
+			o.touch_at = -1.0
+			if rel.length() < 1.35 and ball.pos.y < 0.45:
+				_dribble_push(o, dir, ahead, sp)
+		elif rel.length() > 1.6 or ball.pos.y >= 0.6:
+			o.touch_at = -1.0
+		return
+	if o.touch_cd > 0.0 or rel.length() >= 1.25 or ball.pos.y >= 0.45:
+		return
+	if ahead < 0.22:
+		_dribble_push(o, dir, ahead, sp)     # about to run over the ball: no time to plan
+		return
+	var win := o.next_touch_window(TOUCH_LEAD)
+	var t_w := float(win[0])
+	# where will the ball be relative to the runner at that foot window?
+	var ahead_w := ahead - (sp - bdir.dot(dir)) * t_w
+	if ahead_w < 0.5 + 0.045 * sp or lat > 0.45 or misdir:
+		o.touch_at = clock + t_w
+		o.touch_foot = int(win[1])
+
+
+func _dribble_push(o: Footballer, dir: Vector3, ahead: float, sp: float) -> void:
+	var push := 0.55 + 0.11 * sp - 0.25 * o.dribble_attr
+	if o.cmd.sprint:
+		push += 0.75
+	var v := dir * (maxf(sp, 2.0) + push)
+	# correct lateral offset so the ball ends up in the running line
+	var lat_v := (o.pos + dir * maxf(ahead, 0.3)) - ball.pos
+	lat_v.y = 0.0
+	v += (lat_v - dir * lat_v.dot(dir)) * 3.0
+	ball.kick(Vector3(v.x, 0.0, v.z), BallSim.rolling_spin(v))
+	o.touch_cd = 0.24 + (0.12 if o.cmd.sprint else 0.0)
+	o.stats["touches"] += 1
+	emit({"t": "dribble", "id": o.id, "soft": false, "s": v.length(), "foot": o.touch_foot})
 
 
 func _ball_bodies() -> void:
@@ -1455,7 +1538,7 @@ func _foul(by: Footballer, victim: Footballer, severity: float, slide: bool) -> 
 	var own_side := -side_of(by.team)
 	var pen := pitch.in_box(at, own_side)
 	var card := 0
-	if severity > 0.8 or (slide and rng.randf() < severity * 0.5):
+	if (severity > 0.85 and rng.randf() < 0.55) or (slide and rng.randf() < severity * 0.25):
 		card = 1
 	# denying an obvious goal-scoring opportunity
 	var gx := pitch.goal_x(own_side)
@@ -1694,12 +1777,19 @@ func _separate_players() -> void:
 		var a: Footballer = players[i]
 		if a.sent_off:
 			continue
+		var ax := a.pos.x
+		var az := a.pos.z
 		for j in range(i + 1, n):
 			var b: Footballer = players[j]
+			var ddx := b.pos.x - ax
+			if ddx > 0.65 or ddx < -0.65:
+				continue
+			var ddz := b.pos.z - az
+			if ddz > 0.65 or ddz < -0.65:
+				continue
 			if b.sent_off:
 				continue
-			var d := b.pos - a.pos
-			d.y = 0.0
+			var d := Vector3(ddx, 0.0, ddz)
 			var dl := d.length()
 			var mind := 0.62
 			if a.on_floor() or b.on_floor():

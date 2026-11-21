@@ -1,0 +1,9 @@
+DONE seed=9 ticks=40787
+GOAL kind=stadium seed=10 tick=2935 kick_tick=2917 team=0 scorer=9 shot=shot speed=31.6 dist=8.4 h=0.11 passes=3 assist=-1 score=1-0
+GOAL kind=stadium seed=10 tick=27736 kick_tick=27720 team=0 scorer=2 shot=shot speed=29.7 dist=5.9 h=0.14 passes=2 assist=-1 score=5-0
+GOAL kind=stadium seed=10 tick=39296 kick_tick=39233 team=1 scorer=19 shot=shot speed=35.7 dist=28.0 h=0.11 passes=2 assist=17 score=5-1
+DONE seed=10 ticks=41547
+DONE seed=11 ticks=39837
+GOAL kind=stadium seed=12 tick=10506 kick_tick=10498 team=0 scorer=10 shot=shot speed=28.5 dist=2.3 h=0.11 passes=2 assist=-1 score=1-1
+GOAL kind=stadium seed=12 tick=30606 kick_tick=30541 team=1 scorer=21 shot=shot speed=35.5 dist=28.0 h=0.11 passes=2 assist=18 score=1-2
+DONE seed=12 ticks=40312

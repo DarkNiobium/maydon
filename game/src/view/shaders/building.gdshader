@@ -25,7 +25,7 @@ void fragment() {
 	float lit = step(0.55, r) * night;
 	vec3 warm = mix(vec3(1.0, 0.75, 0.45), vec3(0.75, 0.85, 1.0), step(0.85, h21(cell + 7.7)));
 	c = mix(c, glass, win);
-	ALBEDO = c * (1.0 - night * 0.55);
+	ALBEDO = c * mix(0.72, 0.07, night);
 	EMISSION = warm * lit * win * (0.6 + 0.8 * h21(cell + 1.3)) * 1.6;
 	ROUGHNESS = mix(0.9, 0.2, win);
 }

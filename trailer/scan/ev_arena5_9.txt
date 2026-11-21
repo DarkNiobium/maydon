@@ -1,0 +1,71 @@
+SAVE kind=arena5 seed=9 tick=3129 gk=5 catch=false shot_tick=3117 shot_s=31.4 shooter=3 ball_h=0.94
+POST kind=arena5 seed=9 tick=4356
+SAVE kind=arena5 seed=9 tick=5035 gk=5 catch=false shot_tick=5035 shot_s=29.5 shooter=4 ball_h=0.17
+SLIDE kind=arena5 seed=9 tick=6532 id=7
+SAVE kind=arena5 seed=9 tick=7245 gk=5 catch=false shot_tick=7233 shot_s=31.9 shooter=3 ball_h=1.04
+SLIDE kind=arena5 seed=9 tick=7927 id=6
+SAVE kind=arena5 seed=9 tick=8238 gk=5 catch=false shot_tick=8228 shot_s=31.2 shooter=4 ball_h=0.56
+SAVE kind=arena5 seed=9 tick=8378 gk=5 catch=false shot_tick=8377 shot_s=28.9 shooter=4 ball_h=0.34
+SAVE kind=arena5 seed=9 tick=8392 gk=5 catch=false shot_tick=8377 shot_s=28.9 shooter=4 ball_h=0.13
+POST kind=arena5 seed=9 tick=8535
+POST kind=arena5 seed=9 tick=10113
+SAVE kind=arena5 seed=9 tick=10566 gk=0 catch=false shot_tick=10552 shot_s=31.2 shooter=7 ball_h=1.22
+POST kind=arena5 seed=9 tick=10566
+POST kind=arena5 seed=9 tick=10893
+SAVE kind=arena5 seed=9 tick=14382 gk=5 catch=false shot_tick=14358 shot_s=29.0 shooter=3 ball_h=0.11
+SLIDE kind=arena5 seed=9 tick=14938 id=3
+SLIDE kind=arena5 seed=9 tick=15988 id=9
+SAVE kind=arena5 seed=9 tick=18433 gk=5 catch=true shot_tick=18393 shot_s=34.2 shooter=3 ball_h=1.05
+SAVE kind=arena5 seed=9 tick=18551 gk=5 catch=false shot_tick=18551 shot_s=28.9 shooter=4 ball_h=0.22
+SLIDE kind=arena5 seed=9 tick=20269 id=6
+SLIDE kind=arena5 seed=10 tick=6202 id=9
+POST kind=arena5 seed=10 tick=6433
+SAVE kind=arena5 seed=10 tick=6446 gk=0 catch=true shot_tick=6423 shot_s=29.7 shooter=8 ball_h=1.05
+SAVE kind=arena5 seed=10 tick=7619 gk=5 catch=false shot_tick=7615 shot_s=28.9 shooter=4 ball_h=0.44
+POST kind=arena5 seed=10 tick=7750
+POST kind=arena5 seed=10 tick=8766
+SLIDE kind=arena5 seed=10 tick=9811 id=6
+SAVE kind=arena5 seed=10 tick=11298 gk=5 catch=false shot_tick=11295 shot_s=29.7 shooter=4 ball_h=0.27
+POST kind=arena5 seed=10 tick=11384
+SAVE kind=arena5 seed=10 tick=13705 gk=0 catch=false shot_tick=13683 shot_s=33.5 shooter=8 ball_h=0.51
+SLIDE kind=arena5 seed=10 tick=14890 id=3
+SLIDE kind=arena5 seed=10 tick=14950 id=4
+SLIDE kind=arena5 seed=10 tick=15262 id=7
+SAVE kind=arena5 seed=10 tick=15349 gk=5 catch=true shot_tick=15334 shot_s=29.7 shooter=4 ball_h=1.05
+SAVE kind=arena5 seed=10 tick=17259 gk=0 catch=true shot_tick=17225 shot_s=30.6 shooter=7 ball_h=1.05
+SAVE kind=arena5 seed=10 tick=17381 gk=0 catch=true shot_tick=17225 shot_s=30.6 shooter=7 ball_h=1.05
+SAVE kind=arena5 seed=10 tick=19527 gk=0 catch=false shot_tick=19526 shot_s=28.7 shooter=9 ball_h=0.13
+SAVE kind=arena5 seed=10 tick=20043 gk=0 catch=false shot_tick=20037 shot_s=29.1 shooter=8 ball_h=0.49
+SAVE kind=arena5 seed=11 tick=1079 gk=0 catch=false shot_tick=1078 shot_s=29.5 shooter=9 ball_h=0.32
+SLIDE kind=arena5 seed=11 tick=5266 id=7
+SAVE kind=arena5 seed=11 tick=6823 gk=0 catch=false shot_tick=6810 shot_s=32.6 shooter=8 ball_h=0.70
+SAVE kind=arena5 seed=11 tick=9452 gk=0 catch=false shot_tick=9447 shot_s=30.7 shooter=9 ball_h=0.51
+SAVE kind=arena5 seed=11 tick=12575 gk=0 catch=false shot_tick=12561 shot_s=31.9 shooter=8 ball_h=1.15
+SAVE kind=arena5 seed=11 tick=15046 gk=0 catch=false shot_tick=15028 shot_s=33.1 shooter=9 ball_h=0.97
+SLIDE kind=arena5 seed=11 tick=18580 id=9
+SLIDE kind=arena5 seed=12 tick=564 id=9
+SLIDE kind=arena5 seed=12 tick=1498 id=8
+SLIDE kind=arena5 seed=12 tick=2645 id=9
+SAVE kind=arena5 seed=12 tick=2950 gk=0 catch=false shot_tick=2938 shot_s=31.2 shooter=6 ball_h=1.10
+SAVE kind=arena5 seed=12 tick=5529 gk=0 catch=false shot_tick=5525 shot_s=30.0 shooter=9 ball_h=0.40
+SAVE kind=arena5 seed=12 tick=5879 gk=5 catch=false shot_tick=5873 shot_s=31.5 shooter=4 ball_h=0.61
+POST kind=arena5 seed=12 tick=7376
+SAVE kind=arena5 seed=12 tick=11434 gk=0 catch=false shot_tick=11430 shot_s=29.4 shooter=6 ball_h=0.55
+SLIDE kind=arena5 seed=12 tick=11449 id=4
+SAVE kind=arena5 seed=12 tick=11449 gk=0 catch=true shot_tick=11430 shot_s=29.4 shooter=6 ball_h=1.05
+SAVE kind=arena5 seed=12 tick=13475 gk=5 catch=false shot_tick=13458 shot_s=31.9 shooter=3 ball_h=0.74
+BAR kind=arena5 seed=12 tick=13494
+SAVE kind=arena5 seed=12 tick=14423 gk=0 catch=false shot_tick=14418 shot_s=29.0 shooter=9 ball_h=0.37
+SAVE kind=arena5 seed=12 tick=14437 gk=0 catch=true shot_tick=14418 shot_s=29.0 shooter=9 ball_h=1.05
+SAVE kind=arena5 seed=12 tick=14564 gk=0 catch=false shot_tick=14562 shot_s=28.0 shooter=8 ball_h=0.41
+SAVE kind=arena5 seed=12 tick=16096 gk=5 catch=false shot_tick=16088 shot_s=30.2 shooter=4 ball_h=0.50
+SLIDE kind=arena5 seed=12 tick=16358 id=4
+SAVE kind=arena5 seed=12 tick=16430 gk=5 catch=true shot_tick=16280 shot_s=30.1 shooter=3 ball_h=1.05
+SLIDE kind=arena5 seed=12 tick=17914 id=3
+POST kind=arena5 seed=12 tick=18520
+SLIDE kind=arena5 seed=12 tick=19003 id=8
+SAVE kind=arena5 seed=12 tick=19453 gk=5 catch=false shot_tick=19451 shot_s=28.8 shooter=3 ball_h=0.24
+SAVE kind=arena5 seed=12 tick=19492 gk=5 catch=true shot_tick=19451 shot_s=28.8 shooter=3 ball_h=1.05
+POST kind=arena5 seed=12 tick=19606
+SAVE kind=arena5 seed=12 tick=20711 gk=5 catch=false shot_tick=20711 shot_s=28.6 shooter=4 ball_h=0.22
+SAVE kind=arena5 seed=12 tick=20746 gk=5 catch=true shot_tick=20711 shot_s=28.6 shooter=4 ball_h=1.05

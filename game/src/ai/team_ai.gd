@@ -33,7 +33,9 @@ var gk_guess := 0
 var setpiece_done := false
 var rng := RandomNumberGenerator.new()
 static var hist := {}
+static var tune := {"reach": 0.72, "off": -0.05, "react": 0.12}
 static var dbg_samples: Array = []
+static var dbg_on := false
 
 
 func _init(sim: MatchSim, t: int) -> void:
@@ -49,6 +51,7 @@ func _init(sim: MatchSim, t: int) -> void:
 		lvl = maxi(lvl, 2)       # teammates of humans are competent
 	d = DIFF[clampi(lvl, 0, 3)]
 	rng.seed = sim.cfg.seed * 7 + t * 131
+	plan_t = 0.06 * t
 
 
 func side() -> int:
@@ -133,7 +136,7 @@ func xg(pos: Vector3, t: int) -> float:
 				mult *= 1.25
 			continue
 		if od < 0.6 + along * 0.06 and along < pos.distance_to(goal):
-			mult *= 0.5 if along < 4.0 else 0.7
+			mult *= 0.6 if along < 4.0 else 0.8
 	return clampf(base * mult, 0.0, 0.95)
 
 
@@ -154,28 +157,50 @@ func _sig(x: float) -> float:
 
 
 ## Probability that a ground pass from→to at speed v0 is not intercepted.
+## Samples the ball by time (closed-form rolling distance) and skips opponents
+## that cannot possibly reach the lane.
 func pass_safety(from: Vector3, to: Vector3, v0: float) -> float:
 	var flat := Vector3(to.x - from.x, 0, to.z - from.z)
 	var dist := flat.length()
 	if dist < 0.5:
 		return 1.0
 	var dir := flat / dist
+	var c := m.ball.roll_c
+	var k := m.ball.roll_k
+	var A := v0 + c / k
+	var t_stop := log(A / (c / k)) / k
+	var react: float = tune["react"]
+	var reach: float = tune["reach"]
+	# candidate opponents near the lane
+	var cands: Array[Footballer] = []
+	var a2 := Vector2(from.x, from.z)
+	var b2 := Vector2(to.x, to.z)
+	var t_total := minf(t_stop, dist / maxf(v0 * 0.6, 1.0) + 0.5)
+	for o in opps():
+		var od := _seg_dist(Vector2(o.pos.x, o.pos.z), a2, b2)
+		if od < o.top_speed(true) * t_total + 1.2:
+			cands.append(o)
+	if cands.is_empty():
+		return 1.0
 	var min_margin := 9.0
-	var x := 0.8
-	var react := 0.12
-	while x < dist + 0.8:
-		var s := minf(x, dist)
-		var tb := m.ball.roll_time(v0, s)
-		if tb == INF:
-			tb = 8.0
+	var t := 0.06
+	var dt := 0.1
+	while t < t_stop:
+		var s := A * (1.0 - exp(-k * t)) / k - (c / k) * t
+		var last := s >= dist
+		if last:
+			s = dist
 		var pt := from + dir * s
-		for o in opps():
-			var to_t := o.time_to(pt, true, 0.72 if not o.is_gk() else 1.1) + react
-			var mm := to_t - tb
+		for o in cands:
+			var to_t := o.time_to(pt, true, reach if not o.is_gk() else 1.1) + react
+			var mm := to_t - t
 			if mm < min_margin:
 				min_margin = mm
-		x += 1.5
-	return _sig(min_margin * 6.5 - 0.05)
+		if last:
+			break
+		t += dt
+		dt = minf(dt * 1.15, 0.25)
+	return _sig(min_margin * 6.5 + float(tune["off"]))
 
 
 ## Lob: only the landing zone is contestable.
@@ -191,9 +216,11 @@ func lob_safety(from: Vector3, to: Vector3) -> float:
 		# a defender right in front can charge the lob down
 		var rel := o.pos - from
 		rel.y = 0
-		if rel.length() < 2.2 and rel.normalized().dot(dir) > 0.5:
-			block = 0.6
-	return _sig(mm * 4.0) * 0.8 * block
+		var rl := rel.length()
+		# a defender near the passer, in front, can charge the lob down on take-off
+		if rl < 4.5 and rel.normalized().dot(dir) > 0.3:
+			block = minf(block, clampf((rl - 0.8) / 4.0, 0.1, 1.0))
+	return _sig(mm * 4.0) * (0.8 if m.cfg.per_side >= 9 else 0.65) * block
 
 
 func offside_line() -> float:
@@ -244,7 +271,7 @@ func think(dt: float) -> void:
 	setpiece_done = false
 	plan_t -= dt
 	if plan_t <= 0.0:
-		plan_t = 0.1
+		plan_t = 0.12
 		_plan()
 	for p in mates():
 		if p.human >= 0:
@@ -253,7 +280,7 @@ func think(dt: float) -> void:
 
 
 func _compute_intercepts(preds: PackedVector3Array) -> void:
-	icpt.clear()
+	icpt = {}
 	for p in m.players:
 		if p.sent_off:
 			continue
@@ -263,11 +290,15 @@ func _compute_intercepts(preds: PackedVector3Array) -> void:
 			icpt[p.id] = {"t": 99.0, "p": m.ball.pos}
 			continue
 		var n := preds.size()
+		var vmax := p.top_speed(true)
 		for i in n:
 			var q := preds[i]
 			var tb := (i + 1) * m.pred_dt
 			var hmax := 1.0 if not p.is_gk() else 2.3
 			if q.y > hmax and i < n - 1:
+				continue
+			var dd := Vector2(q.x - p.pos.x, q.z - p.pos.z).length()
+			if dd > vmax * tb + 1.5 and i < n - 1:
 				continue
 			var tp := p.time_to(q, true, 0.55)
 			if tp <= tb:
@@ -282,7 +313,12 @@ func _compute_intercepts(preds: PackedVector3Array) -> void:
 
 func _plan() -> void:
 	var preds := m.prediction()
-	_compute_intercepts(preds)
+	if m.icpt_tick != m.pred_tick or m.icpt_cache.is_empty():
+		_compute_intercepts(preds)
+		m.icpt_cache = icpt
+		m.icpt_tick = m.pred_tick
+	else:
+		icpt = m.icpt_cache
 	var c := m.carrier()
 	var have := c != null and c.team == team
 	var opp_have := c != null and c.team != team
@@ -392,7 +428,7 @@ func _plan_runs(c: Footballer) -> void:
 		var px := p.pos.x * side()
 		if px < cx - 2.0:
 			continue
-		if rng.randf() > 0.035:
+		if rng.randf() > (0.06 if m.cfg.per_side >= 9 else 0.035):
 			continue
 		var depth := clampf(space_behind * 0.6, 4.0, 14.0)
 		var tz := clampf(p.pos.z * 0.75, -hw() * 0.8, hw() * 0.8)
@@ -593,9 +629,15 @@ func _carrier(p: Footballer, dt: float) -> void:
 		carrier_plan = {"kind": "dribble", "dir": p.face}
 	carrier_t -= dt
 	var pressure := nearest_opponent_dist(p.pos)
-	if carrier_t <= 0.0 or (pressure < 1.7 and carrier_plan.get("kind", "") == "dribble" and m.clock - carrier_since > d["react"]):
+	var deciding: bool = not dec.is_empty() and dec["pid"] == p.id
+	if not deciding and (carrier_t <= 0.0 or (pressure < 1.7 and carrier_plan.get("kind", "") == "dribble" and m.clock - carrier_since > d["react"])):
 		carrier_t = 0.22 + rng.randf() * 0.18
-		carrier_plan = _decide(p)
+		_decide_begin(p)
+		deciding = true
+	if deciding:
+		var r := _decide_step(p, 5 if m.cfg.per_side >= 9 else 10)
+		if not r.is_empty():
+			carrier_plan = r
 	var kind: String = carrier_plan.get("kind", "dribble")
 	match kind:
 		"shoot":
@@ -633,53 +675,132 @@ func _carrier(p: Footballer, dt: float) -> void:
 			carrier_plan = {"kind": "dribble", "dir": carrier_plan.get("dir", p.face), "sprint": true}
 		"wait":
 			c.move = Vector3.ZERO
+			# the kick didn't start (busy/out of reach) → decide again soon
+			if p.action == Footballer.A.NONE and carrier_t > 0.06:
+				carrier_t = 0.06
 
 
+var dec := {}
+
+
+## Synchronous decision (tests/tools).
 func _decide(p: Footballer) -> Dictionary:
-	var best := {"kind": "dribble", "dir": p.face, "u": -9.0}
-	var goal := m.opp_goal(team)
-	var gw := m.pitch.goal_width
-	var my_value := value(p.pos, team)
-	var lose_cost := value(p.pos, 1 - team) * 0.8
-	var pressure := nearest_opponent_dist(p.pos)
-	var noise: float = d["noise"]
-	var cands: Array = []
+	_decide_begin(p)
+	var r := _decide_step(p, 9999)
+	return r
 
-	# --- shot -----------------------------------------------------------------
+
+## Start an incremental decision: build cheap candidate specs. Evaluation is
+## spread over several ticks (bounded per-tick cost on phones).
+func _decide_begin(p: Footballer) -> void:
+	var goal := m.opp_goal(team)
+	var pressure := nearest_opponent_dist(p.pos)
+	var ctx := {"goal": goal, "gw": m.pitch.goal_width, "my_value": value(p.pos, team),
+		"lose_cost": value(p.pos, 1 - team) * 0.8, "pressure": pressure,
+		"max_pass": 38.0 if m.cfg.per_side >= 9 else m.pitch.length * 0.75}
+	var gdir := goal - p.pos
+	gdir.y = 0
+	ctx["gdir"] = gdir.normalized()
+	var specs: Array = []
 	var dg := p.pos.distance_to(goal)
 	var max_range := 32.0 if m.is_full() and m.cfg.per_side >= 9 else m.pitch.length * 0.45
 	if dg < max_range:
-		var x := xg(p.pos, team)
-		var gk := m.gk_of(1 - team)
-		var aim_z := -signf(p.pos.z + 0.01) * (gw * 0.5 - 0.45)
-		if gk:
-			# aim away from the keeper
-			aim_z = (gw * 0.5 - 0.45) * (-1.0 if gk.pos.z > 0.0 else 1.0)
-			if absf(gk.pos.z) < 0.3:
-				aim_z *= (1.0 if rng.randf() < 0.5 else -1.0)
-		var aim_y := 0.35 + rng.randf() * 1.3
-		var power := clampf(0.55 + dg / 40.0, 0.55, 0.95)
-		var u: float = x * d["shoot"] * 1.05 - (1.0 - x) * lose_cost * 0.25
-		if dg < 9.0:
-			u += 0.08
-		var curl := Vector3.ZERO
-		if dg > 14.0 and rng.randf() < 0.4:
-			curl = Vector3(0, -signf(aim_z - p.pos.z) * side() * 28.0, 0)
-		cands.append({"kind": "shoot", "u": u, "target": Vector3(goal.x, aim_y, aim_z), "power": power, "spin": curl})
-
-	# --- passes ---------------------------------------------------------------
-	var max_pass := 38.0 if m.cfg.per_side >= 9 else m.pitch.length * 0.75
+		specs.append([0])
+	var px := p.pos.x * side()
 	for q in mates():
 		if q.id == p.id or q.stun > 0.0 or q.on_floor():
 			continue
 		if q.is_gk() and pressure > 2.5:
 			continue
-		var leads := [0]
+		var dq := p.pos.distance_to(q.pos)
+		if dq < 2.5 or dq > float(ctx["max_pass"]) + 6.0:
+			continue
+		if q.pos.x * side() < px - 16.0 and pressure > 2.5:
+			continue
+		specs.append([1, q.id, 0])
 		if runs.has(q.id) or q.vel.length() > 4.0:
-			leads.append(1)
-		for lead in leads:
-			var tgt := q.pos
+			specs.append([1, q.id, 1])
+	for ang: float in [0.0, -0.55, 0.55, -1.1, 1.1, -1.6, 1.6]:
+		specs.append([2, ang])
+	specs.append([3])
+	dec = {"pid": p.id, "specs": specs, "i": 0, "cands": [], "ctx": ctx}
+
+
+func _decide_step(p: Footballer, budget: int) -> Dictionary:
+	if dec.is_empty() or dec["pid"] != p.id:
+		return {}
+	var specs: Array = dec["specs"]
+	var cands: Array = dec["cands"]
+	var ctx: Dictionary = dec["ctx"]
+	var i: int = dec["i"]
+	var stop := mini(i + budget, specs.size())
+	while i < stop:
+		_eval_spec(p, specs[i], ctx, cands)
+		i += 1
+	dec["i"] = i
+	if i < specs.size():
+		return {}
+	dec = {}
+	var best := {"kind": "dribble", "dir": p.face, "u": -9.0}
+	var noise: float = d["noise"]
+	for cd in cands:
+		var u: float = cd["u"] + rng.randfn(0.0, noise)
+		if u > best["u"]:
+			best = cd
+			best["u"] = u
+	hist[best["kind"]] = hist.get(best["kind"], 0) + 1
+	if dbg_on:
+		var su := -9.0
+		for cd in cands:
+			if cd["kind"] == "shoot":
+				su = cd["u"]
+		if su > -9.0:
+			var by := {}
+			for cd in cands:
+				var k: String = cd["kind"]
+				if not by.has(k) or cd["u"] > by[k]:
+					by[k] = snappedf(cd["u"], 0.001)
+			dbg_samples.append("d=%.0f pr=%.1f %s -> %s" % [p.pos.distance_to(m.opp_goal(team)), nearest_opponent_dist(p.pos), str(by), best["kind"]])
+	return best
+
+
+func _eval_spec(p: Footballer, spec: Array, ctx: Dictionary, cands: Array) -> void:
+	var lose_cost: float = ctx["lose_cost"]
+	var pressure: float = ctx["pressure"]
+	var goal: Vector3 = ctx["goal"]
+	match int(spec[0]):
+		0:
+			var gw: float = ctx["gw"]
+			var dg := p.pos.distance_to(goal)
+			var x := xg(p.pos, team)
+			var gk := m.gk_of(1 - team)
+			var aim_z := -signf(p.pos.z + 0.01) * (gw * 0.5 - 0.45)
+			if gk:
+				aim_z = (gw * 0.5 - 0.45) * (-1.0 if gk.pos.z > 0.0 else 1.0)
+				if absf(gk.pos.z) < 0.3:
+					aim_z *= (1.0 if rng.randf() < 0.5 else -1.0)
+			var aim_y := 0.35 + rng.randf() * 1.3
+			var power := clampf(0.55 + dg / 40.0, 0.55, 0.95)
+			var big := m.cfg.per_side >= 9
+			var u: float = x * d["shoot"] * (2.1 if big else 1.05) - (1.0 - x) * lose_cost * 0.25
+			if dg < 9.0:
+				u += 0.08
+			if big and x > 0.035:
+				u += 0.04
+			if m.pitch.in_box(p.pos, side()):
+				u += 0.1 if big else 0.04
+			# had the ball in the final third a while → take the shot on
+			if big and m.clock - carrier_since > 1.0 and dg < 30.0:
+				u += 0.015 + minf(m.clock - carrier_since - 1.0, 2.0) * 0.01
+			var curl := Vector3.ZERO
+			if dg > 14.0 and rng.randf() < 0.4:
+				curl = Vector3(0, -signf(aim_z - p.pos.z) * side() * 28.0, 0)
+			cands.append({"kind": "shoot", "u": u, "target": Vector3(goal.x, aim_y, aim_z), "power": power, "spin": curl})
+		1:
+			var q: Footballer = m.players[spec[1]]
+			var lead: int = spec[2]
 			var dist0 := p.pos.distance_to(q.pos)
+			var tgt := q.pos
 			var kind := "pass"
 			if lead == 1:
 				var run_dir := q.vel.normalized() if q.vel.length() > 1.0 else Vector3(side(), 0, 0)
@@ -691,80 +812,67 @@ func _decide(p: Footballer) -> Dictionary:
 				tgt = q.pos + q.vel * clampf(dist0 / 14.0, 0.2, 1.2)
 			tgt = m.pitch.clamp_player(tgt)
 			var dist := p.pos.distance_to(tgt)
-			if dist < 3.0 or dist > max_pass:
-				continue
+			if dist < 3.0 or dist > float(ctx["max_pass"]):
+				return
 			var arrive := BallSim.pass_arrive_speed(dist, lead == 1)
 			var v0 := m.ball.ground_pass_speed(dist, arrive)
 			var ps := pass_safety(m.ball.pos, tgt, v0)
-			var t_arr := m.ball.roll_time(v0, dist)
+			var t_arr := dist / ((v0 + arrive) * 0.5)
 			if q.time_to(tgt, true, 0.6) > t_arr + 0.35:
 				ps *= 0.45
 			var val := value(tgt, team)
-			var u2 := ps * val - (1.0 - ps) * value(tgt, 1 - team) * 0.75
+			var opp_val := value(tgt, 1 - team)
+			var prog := (tgt.x - p.pos.x) * side()
+			var u2 := ps * (val + clampf(prog, -15.0, 25.0) * 0.0009) - (1.0 - ps) * opp_val * 0.75
+			var asked: bool = q.human >= 0 and request["id"] == q.id and m.clock - request["t"] < 2.0
 			if q.human >= 0:
 				u2 += 0.015
-				if request["id"] == q.id and m.clock - request["t"] < 2.0:
+				if asked:
 					u2 += 0.25 if (lead == 1) == request["through"] else 0.12
 			cands.append({"kind": kind, "u": u2, "target": tgt, "recv": q.id})
-			# lob alternative over a blocked lane
 			if ps < 0.55 and dist > 11.0:
 				var ls := lob_safety(m.ball.pos, tgt)
-				var u3 := ls * val * (0.92 if m.cfg.per_side >= 7 else 0.7) - (1.0 - ls) * value(tgt, 1 - team) * 0.75
+				var u3 := ls * val * (0.92 if m.cfg.per_side >= 7 else 0.6) - (1.0 - ls) * opp_val * 0.75
 				var in_box := m.pitch.in_box(tgt, side())
 				var lk := "cross" if in_box and absf(p.pos.z) > hw() * 0.45 else "lob"
-				if q.human >= 0 and request["id"] == q.id and m.clock - request["t"] < 2.0:
+				if asked:
 					u3 += 0.12
 				cands.append({"kind": lk, "u": u3, "target": tgt, "recv": q.id})
-
-	# --- dribble --------------------------------------------------------------
-	var gdir := goal - p.pos
-	gdir.y = 0
-	gdir = gdir.normalized()
-	var spd := p.top_speed(true) * 0.9
-	for ang: float in [0.0, -0.55, 0.55, -1.1, 1.1, -1.6, 1.6]:
-		var dir := gdir.rotated(Vector3.UP, ang)
-		var end := p.pos + dir * 5.0
-		if not m.pitch.in_field(end, -1.0):
-			continue
-		var my_t := 5.0 / spd
-		var opp_t := 99.0
-		for o in opps():
-			opp_t = minf(opp_t, o.time_to(p.pos + dir * 2.5, true, 0.8))
-			opp_t = minf(opp_t, o.time_to(end, true, 0.8) - 0.2)
-		var keep := _sig((opp_t - my_t * 0.6) * 3.5 + 0.4) * (0.75 + 0.25 * p.dribble_attr)
-		var u4 := keep * value(end, team) - (1.0 - keep) * lose_cost
-		cands.append({"kind": "dribble", "u": u4, "dir": dir, "sprint": opp_t > 1.2})
-		# beat the man with a feint when tight
-		if pressure < 1.6 and ang != 0.0 and absf(ang) < 1.2 and rng.randf() < 0.07 * p.dribble_attr:
-			var keep2 := keep * 0.9 + 0.1
-			cands.append({"kind": "skill", "u": keep2 * value(end, team) - (1.0 - keep2) * lose_cost,
-				"skill": 1 if ang < 0.0 else 2, "dir": dir})
-
-	# --- hold / clear ---------------------------------------------------------
-	var keep_hold := clampf(pressure / 3.0, 0.1, 1.0)
-	cands.append({"kind": "hold", "u": keep_hold * my_value * 0.9 - (1.0 - keep_hold) * lose_cost})
-	var own_third := p.pos.x * side() < -hl() * 0.45
-	if own_third and pressure < 2.2:
-		var up := Vector3(hl() * 0.35 * side(), 0, signf(p.pos.z + 0.01) * hw() * 0.7)
-		cands.append({"kind": "clear", "u": 0.004 + (2.2 - pressure) * 0.006, "target": up})
-
-	for cd in cands:
-		var u: float = cd["u"] + rng.randfn(0.0, noise)
-		if u > best["u"]:
-			best = cd
-			best["u"] = u
-	hist[best["kind"]] = hist.get(best["kind"], 0) + 1
-	if dbg_samples.size() < 12 and rng.randf() < 0.03:
-		var line := "pos=(%.0f,%.0f) pr=%.1f |" % [p.pos.x * side(), p.pos.z, pressure]
-		var by := {}
-		for cd in cands:
-			var k: String = cd["kind"]
-			if not by.has(k) or cd["u"] > by[k]:
-				by[k] = cd["u"]
-		for k in by:
-			line += " %s=%.3f" % [k, by[k]]
-		dbg_samples.append(line + " -> " + str(best["kind"]))
-	return best
+		2:
+			var ang: float = spec[1]
+			var gdir: Vector3 = ctx["gdir"]
+			var dir := gdir.rotated(Vector3.UP, ang)
+			var end := p.pos + dir * 5.0
+			if not m.pitch.in_field(end, -1.0):
+				return
+			var spd := p.top_speed(true) * 0.9
+			var my_t := 5.0 / spd
+			var opp_t := 99.0
+			var mid := p.pos + dir * 2.5
+			for o in opps():
+				var od := Vector2(o.pos.x - mid.x, o.pos.z - mid.z).length()
+				if od > 14.0:
+					continue
+				opp_t = minf(opp_t, o.time_to(mid, true, 0.8))
+				opp_t = minf(opp_t, o.time_to(end, true, 0.8) - 0.2)
+			var keep := _sig((opp_t - my_t * 0.6) * 3.5 + 0.4) * (0.75 + 0.25 * p.dribble_attr)
+			var ve := value(end, team)
+			var u4 := keep * ve - (1.0 - keep) * lose_cost
+			cands.append({"kind": "dribble", "u": u4, "dir": dir, "sprint": opp_t > 1.2})
+			if pressure < 1.6 and ang != 0.0 and absf(ang) < 1.2 and rng.randf() < 0.07 * p.dribble_attr:
+				var keep2 := keep * 0.9 + 0.1
+				cands.append({"kind": "skill", "u": keep2 * ve - (1.0 - keep2) * lose_cost,
+					"skill": 1 if ang < 0.0 else 2, "dir": dir})
+		3:
+			var keep_hold := clampf(pressure / 3.0, 0.1, 1.0)
+			var my_value: float = ctx["my_value"]
+			# holding is fine for a moment, pointless for long
+			var stale := clampf(1.0 - (m.clock - carrier_since - 0.8) * 0.35, 0.35, 1.0)
+			cands.append({"kind": "hold", "u": keep_hold * my_value * 0.9 * stale - (1.0 - keep_hold) * lose_cost})
+			var own_third := p.pos.x * side() < -hl() * 0.45
+			if own_third and pressure < 2.2:
+				var up := Vector3(hl() * 0.35 * side(), 0, signf(p.pos.z + 0.01) * hw() * 0.7)
+				cands.append({"kind": "clear", "u": 0.004 + (2.2 - pressure) * 0.006, "target": up})
 
 
 # ---------------------------------------------------------------------------
@@ -916,8 +1024,10 @@ func _setpiece_think() -> void:
 	if rs.get("team", -1) != team or taker < 0:
 		return
 	var tk: Footballer = m.players[taker]
-	if tk.human >= 0 or setpiece_done or tk.busy():
+	if setpiece_done or tk.busy():
 		return
+	if tk.human >= 0 and m.phase_t < 7.0:
+		return   # give the human time; then the AI takes it for them
 	var delay: float = {MatchSim.Restart.KICKOFF: 1.1, MatchSim.Restart.THROW_IN: 1.3,
 		MatchSim.Restart.CORNER: 1.9, MatchSim.Restart.GOAL_KICK: 1.6,
 		MatchSim.Restart.FREE_KICK: 1.7, MatchSim.Restart.PENALTY: 2.0}.get(type, 1.5)

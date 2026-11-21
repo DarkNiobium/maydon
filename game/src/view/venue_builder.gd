@@ -5,12 +5,20 @@ extends RefCounted
 
 const BUILDING_SHADER := preload("res://src/view/shaders/building.gdshader")
 const CROWD_SHADER := preload("res://src/view/shaders/crowd.gdshader")
+const FAN_SHADER := preload("res://src/view/shaders/fan.gdshader")
+const SKY_SHADER := preload("res://src/view/shaders/sky_dome.gdshader")
+const SKY_DAY_ROT := 0.248   # puts the HDRI sun behind the KeyLight direction
+
+static var _quality := 1
 
 static var crowd_mats: Array = []
+static var _roof_h := 0.0
 
 
 static func build(pitch: Pitch, cfg: MatchConfig, root: Node3D, quality: int) -> void:
 	crowd_mats.clear()
+	_roof_h = 0.0
+	_quality = quality
 	_environment(cfg.night, root, quality)
 	_lights(pitch, cfg.night, root, quality)
 	if pitch.walls or cfg.venue == "arena":
@@ -24,81 +32,131 @@ static func set_excite(v: float) -> void:
 		(m as ShaderMaterial).set_shader_parameter("excite", v)
 
 
+## True when running the desktop Forward+ renderer (SSAO/SSIL/volumetric fog available).
+static func forward_plus() -> bool:
+	return RenderingServer.get_current_rendering_method() == "forward_plus"
+
+
 static func _environment(night: bool, root: Node3D, quality: int) -> void:
 	var we := WorldEnvironment.new()
 	var env := Environment.new()
+	var fwd := forward_plus()
 	var sky := Sky.new()
-	var psm := ProceduralSkyMaterial.new()
+	var sm := ShaderMaterial.new()
+	sm.shader = SKY_SHADER
 	if night:
-		psm.sky_top_color = Color(0.01, 0.015, 0.04)
-		psm.sky_horizon_color = Color(0.09, 0.08, 0.1)
-		psm.ground_bottom_color = Color(0.02, 0.02, 0.02)
-		psm.ground_horizon_color = Color(0.08, 0.07, 0.08)
-		psm.sun_angle_max = 0.0
-		psm.sky_energy_multiplier = 1.0
+		sm.set_shader_parameter("pano", load("res://assets/tex/sky/night.jpg"))
+		sm.set_shader_parameter("tint", Color(0.42, 0.52, 0.85))
+		sm.set_shader_parameter("energy", 0.55)
+		sm.set_shader_parameter("rot", 0.5)
+		sm.set_shader_parameter("ground_col", Color(0.035, 0.035, 0.04))
+		sm.set_shader_parameter("glow_col", Color(0.32, 0.2, 0.1))   # sodium-lit city on the horizon
+		sm.set_shader_parameter("glow_h", 0.10)
 	else:
-		psm.sky_top_color = Color(0.22, 0.42, 0.75)
-		psm.sky_horizon_color = Color(0.68, 0.76, 0.85)
-		psm.ground_horizon_color = Color(0.6, 0.62, 0.6)
-		psm.ground_bottom_color = Color(0.2, 0.2, 0.18)
-	sky.sky_material = psm
+		sm.set_shader_parameter("pano", load("res://assets/tex/sky/day.jpg"))
+		sm.set_shader_parameter("energy", 1.0)
+		sm.set_shader_parameter("rot", SKY_DAY_ROT)
+		sm.set_shader_parameter("ground_col", Color(0.16, 0.16, 0.13))
+		sm.set_shader_parameter("haze", 0.25)
+		sm.set_shader_parameter("haze_col", Color(0.78, 0.82, 0.88))
+	sky.sky_material = sm
+	sky.radiance_size = Sky.RADIANCE_SIZE_64 if quality == 0 else Sky.RADIANCE_SIZE_128
+	sky.process_mode = Sky.PROCESS_MODE_QUALITY if fwd else Sky.PROCESS_MODE_INCREMENTAL
 	env.sky = sky
 	env.background_mode = Environment.BG_SKY
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 2.6 if night else 0.9
-	env.ambient_light_sky_contribution = 0.6 if night else 1.0
-	env.ambient_light_color = Color(0.45, 0.5, 0.6) if night else Color(0.6, 0.65, 0.7)
+	env.ambient_light_sky_contribution = 1.0
+	env.ambient_light_energy = 0.7 if night else 0.85
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_AGX if quality >= 1 else Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 1.0
+	env.tonemap_exposure = 1.15 if night else 1.0
+	env.tonemap_white = 6.0
 	env.glow_enabled = quality >= 1
-	env.glow_intensity = 0.55
-	env.glow_bloom = 0.04
-	env.glow_hdr_threshold = 1.2
+	env.glow_intensity = 0.5
+	env.glow_strength = 1.0
+	env.glow_bloom = 0.03
+	env.glow_hdr_threshold = 1.0
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT if not fwd else Environment.GLOW_BLEND_MODE_SCREEN
 	env.adjustment_enabled = true
 	env.adjustment_contrast = 1.06
-	env.adjustment_saturation = 1.08
+	env.adjustment_saturation = 1.0 if night else 0.96
+	if quality >= 1 and ResourceLoader.exists("res://assets/tex/grade_%s.png" % ("night" if night else "day")):
+		env.adjustment_color_correction = load("res://assets/tex/grade_%s.png" % ("night" if night else "day"))
+	# Forward+ (desktop): screen-space AO / GI and volumetric floodlight haze
+	env.ssao_enabled = fwd and quality >= 2
+	env.ssao_radius = 1.2
+	env.ssao_intensity = 1.6
+	env.ssao_power = 1.4
+	env.ssao_detail = 0.6
+	env.ssao_light_affect = 0.15
+	env.ssil_enabled = fwd and quality >= 3
+	env.ssil_radius = 4.0
+	env.ssil_intensity = 0.8
 	if night:
 		env.fog_enabled = quality >= 1
-		env.fog_light_color = Color(0.12, 0.13, 0.17)
-		env.fog_density = 0.0016
-		env.fog_sky_affect = 0.3
+		env.fog_light_color = Color(0.07, 0.08, 0.11)
+		env.fog_density = 0.0012
+		env.fog_sky_affect = 0.0
+		env.volumetric_fog_enabled = fwd and quality >= 3
+		env.volumetric_fog_density = 0.0012
+		env.volumetric_fog_albedo = Color(0.9, 0.92, 1.0)
+		env.volumetric_fog_length = 120.0
+		env.volumetric_fog_anisotropy = 0.6
+		env.volumetric_fog_ambient_inject = 0.0
+		env.volumetric_fog_sky_affect = 0.0
+	else:
+		# aerial perspective: distant stands/blocks pick up a little sky haze
+		env.fog_enabled = quality >= 1
+		env.fog_mode = Environment.FOG_MODE_DEPTH
+		env.fog_light_color = Color(0.72, 0.78, 0.86)
+		env.fog_depth_begin = 60.0
+		env.fog_depth_end = 420.0
+		env.fog_depth_curve = 1.6
+		env.fog_sky_affect = 0.0
+		env.fog_density = 0.35
 	we.environment = env
 	root.add_child(we)
 
 
 static func _lights(pitch: Pitch, night: bool, root: Node3D, quality: int) -> void:
+	var fwd := forward_plus()
 	var sun := DirectionalLight3D.new()
 	sun.name = "KeyLight"
 	sun.shadow_enabled = true
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL if quality == 0 else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
-	sun.directional_shadow_max_distance = 70.0 if quality >= 1 else 40.0
-	sun.shadow_blur = 1.2
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL if quality == 0 else (DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if fwd and quality >= 2 else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS)
+	sun.directional_shadow_max_distance = 80.0 if quality >= 1 else 40.0
+	sun.directional_shadow_split_1 = 0.08
+	sun.directional_shadow_split_2 = 0.25
+	sun.directional_shadow_blend_splits = quality >= 2
+	sun.shadow_blur = 1.0
+	sun.shadow_normal_bias = 1.2
+	if fwd and quality >= 2:
+		# soft contact-hardening shadows (PCSS) from the sun's angular size
+		sun.light_angular_distance = 0.6 if not night else 1.5
 	if night:
-		sun.light_color = Color(0.95, 0.97, 1.0)
-		sun.light_energy = 1.35
+		sun.light_color = Color(0.97, 0.98, 1.0)
+		sun.light_energy = 1.25
+		sun.light_volumetric_fog_energy = 0.0
 		sun.rotation_degrees = Vector3(-62, -35, 0)
 	else:
-		sun.light_color = Color(1.0, 0.95, 0.85)
-		sun.light_energy = 1.7
+		sun.light_color = Color(1.0, 0.95, 0.87)
+		sun.light_energy = 2.2
 		sun.rotation_degrees = Vector3(-48, -125, 0)
 	root.add_child(sun)
 	if night:
 		# secondary floodlight from the opposite side (no shadows, cheap)
 		var fill := DirectionalLight3D.new()
-		fill.light_energy = 0.55
+		fill.light_energy = 0.35
 		fill.light_color = Color(1.0, 0.96, 0.9)
 		fill.rotation_degrees = Vector3(-55, 145, 0)
 		fill.shadow_enabled = false
+		fill.light_volumetric_fog_energy = 0.0
 		root.add_child(fill)
 		_floodlight_towers(pitch, root)
 
 
 static func _floodlight_towers(pitch: Pitch, root: Node3D) -> void:
-	var pole_mat := StandardMaterial3D.new()
-	pole_mat.albedo_color = Color(0.35, 0.37, 0.4)
-	pole_mat.metallic = 0.8
-	pole_mat.roughness = 0.4
+	var pole_mat := pbr("metal_brushed", 2.0, Color(0.55, 0.57, 0.6), 0.9)
 	var lamp_mat := StandardMaterial3D.new()
 	lamp_mat.albedo_color = Color(1, 1, 1)
 	lamp_mat.emission_enabled = true
@@ -112,10 +170,27 @@ static func _floodlight_towers(pitch: Pitch, root: Node3D) -> void:
 	if not big:
 		spots.append(Vector2(0, oz))
 		spots.append(Vector2(0, -oz))
+	var lit := 0
 	for s in spots:
 		var t := Node3D.new()
 		t.position = Vector3(s.x, 0, s.y)
 		root.add_child(t)
+		if lit < 4 and absf(s.x) > 1.0:
+			# floodlight: lights the pitch, not the city around it
+			lit += 1
+			var sl := SpotLight3D.new()
+			sl.light_color = Color(1.0, 0.97, 0.92)
+			sl.light_energy = 14.0 if big else 7.0
+			sl.spot_range = 140.0 if big else 60.0
+			sl.spot_angle = 38.0 if big else 50.0
+			sl.spot_attenuation = 0.6
+			sl.shadow_enabled = false
+			sl.light_specular = 0.4
+			sl.light_volumetric_fog_energy = 1.0
+			root.add_child(sl)
+			sl.position = Vector3(s.x, h + 1.0, s.y)
+			var aim := Vector3(-s.x * 0.25, 0, -s.y * 0.25)
+			sl.look_at(aim, Vector3.UP)
 		var pole := MeshInstance3D.new()
 		var cm := CylinderMesh.new()
 		cm.top_radius = 0.18 if not big else 0.5
@@ -140,6 +215,25 @@ static func _floodlight_towers(pitch: Pitch, root: Node3D) -> void:
 		head.rotation.x = -0.35
 
 
+## PBR material from assets/tex/<name>/{albedo,normal,rough}.jpg
+static func pbr(name: String, uv := 1.0, tint := Color.WHITE, metal := 0.0) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	var d := "res://assets/tex/%s/" % name
+	if ResourceLoader.exists(d + "albedo.jpg"):
+		m.albedo_texture = load(d + "albedo.jpg")
+	if ResourceLoader.exists(d + "normal.jpg"):
+		m.normal_enabled = true
+		m.normal_texture = load(d + "normal.jpg")
+	if ResourceLoader.exists(d + "rough.jpg"):
+		m.roughness_texture = load(d + "rough.jpg")
+		m.roughness = 1.0
+	m.albedo_color = tint
+	m.metallic = metal
+	m.uv1_scale = Vector3(uv, uv, 1)
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return m
+
+
 static func _box(root: Node3D, size: Vector3, pos: Vector3, mat: Material, rot_y := 0.0) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var bm := BoxMesh.new()
@@ -155,78 +249,67 @@ static func _box(root: Node3D, size: Vector3, pos: Vector3, mat: Material, rot_y
 static func _arena_surroundings(pitch: Pitch, cfg: MatchConfig, root: Node3D) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 42
-	# asphalt / paving around the cage
-	var ground := MeshInstance3D.new()
-	var pm := PlaneMesh.new()
-	pm.size = Vector2(260, 260)
-	ground.mesh = pm
-	var gm := StandardMaterial3D.new()
-	gm.albedo_color = Color(0.18, 0.18, 0.19)
-	gm.roughness = 0.95
-	if ResourceLoader.exists("res://assets/tex/asphalt/albedo.jpg"):
-		gm.albedo_texture = load("res://assets/tex/asphalt/albedo.jpg")
-		gm.albedo_color = Color(0.7, 0.7, 0.7)
-		gm.uv1_scale = Vector3(60, 60, 1)
-	ground.material_override = gm
-	ground.position.y = -0.02
-	root.add_child(ground)
-	# ring of 9-storey panel blocks
-	var cols := [Color(0.66, 0.63, 0.57), Color(0.72, 0.7, 0.64), Color(0.6, 0.6, 0.62), Color(0.74, 0.66, 0.55)]
+	# asphalt + a concrete apron around the cage; the skyline comes from the HDRI sky
 	var hl := pitch.hl()
 	var hw := pitch.hw()
-	var placements := [
-		[Vector3(0, 0, -hw - 34.0), 0.0, 72.0], [Vector3(-hl - 40.0, 0, -12.0), PI * 0.5, 60.0],
-		[Vector3(hl + 42.0, 0, 6.0), PI * 0.5, 64.0], [Vector3(-20.0, 0, hw + 46.0), 0.0, 60.0],
-		[Vector3(48.0, 0, hw + 52.0), 0.35, 48.0], [Vector3(-hl - 34.0, 0, hw + 30.0), -0.6, 40.0],
-		[Vector3(hl + 30.0, 0, -hw - 36.0), 0.7, 44.0],
-	]
-	for pl in placements:
-		var floors := 9 if rng.randf() < 0.7 else 5
-		var h := floors * 2.9
-		var w: float = pl[2]
-		var d := 12.0
-		var mat := ShaderMaterial.new()
-		mat.shader = BUILDING_SHADER
-		mat.set_shader_parameter("wall", cols[rng.randi() % cols.size()])
-		mat.set_shader_parameter("size", Vector2(w, h))
-		mat.set_shader_parameter("floors", float(floors))
-		mat.set_shader_parameter("night", 1.0 if cfg.night else 0.0)
-		mat.set_shader_parameter("seed", rng.randf() * 10.0)
-		var b := _box(root, Vector3(w, h, d), pl[0] + Vector3(0, h * 0.5, 0), mat, pl[1])
-		b.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# trees (simple, replaced by proper models when available)
-	var trunk := StandardMaterial3D.new()
-	trunk.albedo_color = Color(0.25, 0.18, 0.12)
-	var leaf := StandardMaterial3D.new()
-	leaf.albedo_color = Color(0.1, 0.22, 0.08) if cfg.night else Color(0.2, 0.38, 0.12)
-	leaf.roughness = 0.95
+	var ground := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(320, 320)
+	ground.mesh = pm
+	ground.material_override = pbr("asphalt", 70.0, Color(0.32, 0.32, 0.34) if cfg.night else Color(0.75, 0.75, 0.75))
+	ground.position.y = -0.03
+	root.add_child(ground)
+	var apron := MeshInstance3D.new()
+	var am := PlaneMesh.new()
+	am.size = Vector2(pitch.length + 16.0, pitch.width + 16.0)
+	apron.mesh = am
+	apron.material_override = pbr("concrete_smooth", 10.0, Color(0.62, 0.62, 0.64))
+	apron.position.y = -0.015
+	root.add_child(apron)
+	# trees: crossed-quad impostors rendered from a CC0 Poly Haven tree
+	var tree_mat := StandardMaterial3D.new()
+	tree_mat.albedo_texture = load("res://assets/gen/tree_atlas.png")
+	tree_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	tree_mat.alpha_scissor_threshold = 0.4
+	tree_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	tree_mat.roughness = 0.95
+	tree_mat.albedo_color = Color(0.32, 0.36, 0.34) if cfg.night else Color(1, 1, 1)
+	tree_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	var tm := ArrayMesh.new()
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for k in 2:
+		var u0 := 0.5 * k
+		var ax := Vector3(1, 0, 0) if k == 0 else Vector3(0, 0, 1)
+		var a := -ax * 0.5
+		var b := ax * 0.5
+		var verts := [a, b, b + Vector3.UP, a + Vector3.UP]
+		var uvs := [Vector2(u0, 1), Vector2(u0 + 0.5, 1), Vector2(u0 + 0.5, 0), Vector2(u0, 0)]
+		var nrm := ax.cross(Vector3.UP)
+		for idx in [0, 1, 2, 0, 2, 3]:
+			st.set_normal(Vector3.UP.lerp(nrm, 0.3).normalized())
+			st.set_uv(uvs[idx])
+			st.add_vertex(verts[idx])
+	tm = st.commit()
+	mm.mesh = tm
+	var spots := []
 	for i in 26:
 		var ang := rng.randf() * TAU
-		var r := rng.randf_range(maxf(hl, hw) + 8.0, maxf(hl, hw) + 24.0)
-		var p := Vector3(cos(ang) * r * 1.2, 0, sin(ang) * r * 0.8)
-		var th := rng.randf_range(4.0, 8.0)
-		var tr := MeshInstance3D.new()
-		var cm := CylinderMesh.new()
-		cm.top_radius = 0.12
-		cm.bottom_radius = 0.2
-		cm.height = th
-		tr.mesh = cm
-		tr.material_override = trunk
-		tr.position = p + Vector3(0, th * 0.5, 0)
-		root.add_child(tr)
-		var cr := MeshInstance3D.new()
-		var sm := SphereMesh.new()
-		var cr_r := rng.randf_range(2.0, 3.5)
-		sm.radius = cr_r
-		sm.height = cr_r * 2.2
-		sm.radial_segments = 10
-		sm.rings = 6
-		cr.mesh = sm
-		cr.material_override = leaf
-		cr.position = p + Vector3(0, th + cr_r * 0.6, 0)
-		root.add_child(cr)
-	# small spectator stand along one side
-	_terrace(root, Vector3(0, 0, -hw - 1.5), pitch.length * 0.7, 5, 0.0, cfg, 0.55)
+		var r := rng.randf_range(maxf(hl, hw) + 14.0, maxf(hl, hw) + 40.0)
+		spots.append(Vector3(cos(ang) * r * 1.2, 0, sin(ang) * r * 0.85))
+	mm.instance_count = spots.size()
+	for i in spots.size():
+		var hgt := rng.randf_range(8.0, 13.0)
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(hgt, hgt, hgt))
+		mm.set_instance_transform(i, Transform3D(basis, spots[i]))
+	var mmi := MultiMeshInstance3D.new()
+	mmi.multimesh = mm
+	mmi.material_override = tree_mat
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(mmi)
+	# no spectators around a 3v3 / 5v5 cage: it's a pickup game, not a stadium
 
 
 static func _terrace(root: Node3D, at: Vector3, length: float, rows: int, rot_y: float, cfg: MatchConfig, fill: float, row_d := 0.8, row_h := 0.42) -> void:
@@ -246,7 +329,7 @@ static func _terrace(root: Node3D, at: Vector3, length: float, rows: int, rot_y:
 	mat.shader = CROWD_SHADER
 	mat.set_shader_parameter("size", Vector2(length, slope_len))
 	mat.set_shader_parameter("rows", float(rows))
-	mat.set_shader_parameter("fill", fill)
+	mat.set_shader_parameter("fill", 0.0)
 	mat.set_shader_parameter("night", 1.0 if cfg.night else 0.0)
 	var k0: Dictionary = cfg.kits[0] if cfg.kits.size() > 0 else {}
 	var k1: Dictionary = cfg.kits[1] if cfg.kits.size() > 1 else {}
@@ -259,19 +342,74 @@ static func _terrace(root: Node3D, at: Vector3, length: float, rows: int, rot_y:
 	if at.z > 0.0:
 		pass
 	node.add_child(mi)
+	_fans(node, length, rows, row_d, row_h, fill, cfg)
 	# concrete under-structure
-	var cm := StandardMaterial3D.new()
-	cm.albedo_color = Color(0.45, 0.45, 0.47)
+	var cm := pbr("concrete", 4.0, Color(0.6, 0.6, 0.62))
 	_box(node, Vector3(length, height, 0.3), Vector3(0, height * 0.5, -depth - 0.15), cm)
+
+
+static func _fans(node: Node3D, length: float, rows: int, row_d: float, row_h: float, fill: float, cfg: MatchConfig) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(length * 100.0) + rows
+	var dens: float = [0.45, 0.8, 1.0][clampi(_quality, 0, 2)]
+	var k0: Dictionary = cfg.kits[0] if cfg.kits.size() > 0 else {}
+	var k1: Dictionary = cfg.kits[1] if cfg.kits.size() > 1 else {}
+	var home: Color = k0.get("shirt", Color.RED)
+	var away: Color = k1.get("shirt", Color.BLUE)
+	var spots: Array = []
+	var seat := 0.62
+	var n_seats := int(length / seat)
+	for r in rows:
+		for i in n_seats:
+			if rng.randf() > fill * dens:
+				continue
+			var x := -length * 0.5 + (i + 0.5) * seat + rng.randf_range(-0.08, 0.08)
+			var y := r * row_h + 0.55
+			var z := -(r + 0.55) * row_d
+			spots.append(Vector3(x, y, z))
+	if spots.is_empty():
+		return
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true
+	var qm := QuadMesh.new()
+	var atlas := ResourceLoader.exists("res://assets/gen/fans.png")
+	qm.size = Vector2(0.78, 1.56) if atlas else Vector2(0.56, 1.1)
+	qm.center_offset = Vector3(0, 0.25 if atlas else 0.0, 0)
+	mm.mesh = qm
+	mm.instance_count = spots.size()
+	for i in spots.size():
+		var sc := rng.randf_range(0.9, 1.08)
+		mm.set_instance_transform(i, Transform3D(Basis.IDENTITY.scaled(Vector3(sc, sc, sc)), spots[i]))
+		var roll := rng.randf()
+		var c: Color
+		if roll < 0.45:
+			c = home.lerp(Color.WHITE, rng.randf() * 0.15)
+		elif roll < 0.6:
+			c = away
+		else:
+			c = Color.from_hsv(rng.randf(), rng.randf_range(0.1, 0.7), rng.randf_range(0.2, 0.9))
+		c.a = rng.randf()
+		mm.set_instance_custom_data(i, c)
+	var mmi := MultiMeshInstance3D.new()
+	mmi.multimesh = mm
+	var mat := ShaderMaterial.new()
+	mat.shader = FAN_SHADER
+	if ResourceLoader.exists("res://assets/gen/fans.png"):
+		mat.set_shader_parameter("atlas", load("res://assets/gen/fans.png"))
+		mat.set_shader_parameter("use_atlas", true)
+	mat.set_shader_parameter("roof_h", _roof_h)
+	mmi.material_override = mat
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	crowd_mats.append(mat)
+	node.add_child(mmi)
 
 
 static func _stadium(pitch: Pitch, cfg: MatchConfig, root: Node3D) -> void:
 	var hl := pitch.hl() + pitch.runoff_x + 2.0
 	var hw := pitch.hw() + pitch.runoff_z + 2.0
 	var rows := 34
-	var conc := StandardMaterial3D.new()
-	conc.albedo_color = Color(0.36, 0.36, 0.38)
-	conc.roughness = 0.9
+	var conc := pbr("concrete", 12.0, Color(0.55, 0.55, 0.57))
 	# apron around the pitch
 	var ap := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
@@ -280,20 +418,43 @@ static func _stadium(pitch: Pitch, cfg: MatchConfig, root: Node3D) -> void:
 	ap.material_override = conc
 	ap.position.y = -0.03
 	root.add_child(ap)
+	_roof_h = rows * 0.5 + 6.0
 	# four terraces: long sides and ends (each built with its back away from the pitch)
 	_terrace(root, Vector3(0, 0.6, -hw), hl * 2.0, rows, 0.0, cfg, 0.88, 0.85, 0.5)
 	_terrace(root, Vector3(0, 0.6, hw), hl * 2.0, rows, PI, cfg, 0.88, 0.85, 0.5)
 	_terrace(root, Vector3(-hl, 0.6, 0), hw * 2.0, rows - 6, PI * 0.5, cfg, 0.8, 0.85, 0.5)
 	_terrace(root, Vector3(hl, 0.6, 0), hw * 2.0, rows - 6, -PI * 0.5, cfg, 0.8, 0.85, 0.5)
 	# roofs
-	var roof := StandardMaterial3D.new()
-	roof.albedo_color = Color(0.2, 0.21, 0.23)
-	roof.metallic = 0.5
-	roof.roughness = 0.5
+	var roof := pbr("metal_painted", 6.0, Color(0.22, 0.23, 0.26), 0.5)
 	var rh := rows * 0.5 + 6.0
 	var rd := rows * 0.85 * 0.8
+	var rows_e := rows - 6
+	var de := rows_e * 0.85
+	var dl := rows * 0.85
+	var rde := de * 0.8
 	_box(root, Vector3(hl * 2.0 + 10.0, 0.6, rd), Vector3(0, rh, -hw - rd * 0.5), roof)
 	_box(root, Vector3(hl * 2.0 + 10.0, 0.6, rd), Vector3(0, rh, hw + rd * 0.5), roof)
+	_box(root, Vector3(rde, 0.6, hw * 2.0 + 10.0), Vector3(-hl - rde * 0.5, rh, 0), roof)
+	_box(root, Vector3(rde, 0.6, hw * 2.0 + 10.0), Vector3(hl + rde * 0.5, rh, 0), roof)
+	# roof fascia (front edge) and trusses: reads as a real cantilever roof
+	var fascia := pbr("metal_painted", 4.0, Color(0.12, 0.12, 0.14), 0.4)
+	for zs: float in [-1.0, 1.0]:
+		_box(root, Vector3(hl * 2.0 + 10.0, 1.6, 0.4), Vector3(0, rh - 0.5, zs * (hw + 0.2)), fascia)
+		for i in 13:
+			var x := -hl + (i / 12.0) * hl * 2.0
+			_box(root, Vector3(0.35, 1.2, rd), Vector3(x, rh - 0.9, zs * (hw + rd * 0.5)), fascia)
+	for xs: float in [-1.0, 1.0]:
+		_box(root, Vector3(0.4, 1.6, hw * 2.0 + 10.0), Vector3(xs * (hl + 0.2), rh - 0.5, 0), fascia)
+	# back walls + corner blocks close the bowl (no void between stands)
+	var wall := pbr("concrete", 10.0, Color(0.42, 0.42, 0.45))
+	var top := rh + 0.3
+	for zs: float in [-1.0, 1.0]:
+		_box(root, Vector3(hl * 2.0 + 2.0 * de + 4.0, top, 0.6), Vector3(0, top * 0.5, zs * (hw + dl + 1.0)), wall)
+	for xs: float in [-1.0, 1.0]:
+		_box(root, Vector3(0.6, top, hw * 2.0 + 2.0 * dl + 4.0), Vector3(xs * (hl + de + 1.0), top * 0.5, 0), wall)
+		for zs: float in [-1.0, 1.0]:
+			var cb := _box(root, Vector3(de + 1.0, top, dl + 1.0), Vector3(xs * (hl + (de + 1.0) * 0.5), top * 0.5, zs * (hw + (dl + 1.0) * 0.5)), wall)
+			cb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# light rings under the roof edge
 	var lamp := StandardMaterial3D.new()
 	lamp.emission_enabled = true
